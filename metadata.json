@@ -1,0 +1,10 @@
+{
+  "name": "MedLens",
+  "description": "Photo-in, voice-out medicine assistant for elderly and low-literacy patients with Urdu and English support, schedule organizer, and drug interaction checker.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

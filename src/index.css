@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    font-size: 18px;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #020617;
+    background-color: #f8fafc;
+    -webkit-tap-highlight-color: transparent;
+    font-weight: 600;
+  }
+
+  [dir="rtl"], .font-urdu {
+    font-family: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Plus Jakarta Sans', system-ui, sans-serif;
+    line-height: 2;
+  }
+}
+
+/* Accessible focus ring for elderly users */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 4px solid #0f766e;
+  outline-offset: 3px;
+}
+
+/* Keyframes for scanner laser animation */
+@keyframes scanLaser {
+  0% {
+    top: 5%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 90%;
+    opacity: 1;
+  }
+  100% {
+    top: 5%;
+    opacity: 0.8;
+  }
+}
+
+.animate-scan-laser {
+  animation: scanLaser 2.2s ease-in-out infinite;
+}
+
+/* High contrast touch feedback */
+.active-press:active {
+  transform: scale(0.97);
+}

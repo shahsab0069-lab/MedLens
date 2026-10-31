@@ -1,0 +1,3893 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MedLens</title>
+<meta name="description" content="Photo-in, voice-out medicine assistant for elderly and low-literacy patients with Urdu and English support, schedule organizer, and drug interaction checker.">
+<meta property="og:title" content="MedLens">
+<meta property="og:description" content="Photo-in, voice-out medicine assistant for elderly and low-literacy patients with Urdu and English support, schedule organizer, and drug interaction checker.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+  :root{
+    --g1:#2a8a84; --g2:#4fa383; --g3:#5c6bb5;
+    --grad:linear-gradient(135deg,#2a8a84 0%,#4fa383 100%);
+    --grad-greet:linear-gradient(135deg,#5c6bb5 0%,#3a8f8c 50%,#8a5a68 100%);
+    --grad-next:linear-gradient(135deg,#2a8a84 0%,#3e9c7f 100%);
+    --ink:#24323a; --muted:#64737b; --line:rgba(36,50,58,.12);
+    --card:rgba(249,250,247,.94); --shadow:0 12px 32px rgba(15,23,42,.18);
+    --rose:#c4757c; --rose-light:#f2b8c1; --indigo:#5c6bb5;
+    --orange-bg:#fbf3e8; --orange-ink:#87542a;
+    --red-bg:#fbeeee; --red-ink:#8c3a40;
+    --green-bg:#edf6f1; --green-ink:#2f6b52;
+    --heading-light:#f3f5f2;
+  }
+  html, body{width:100%;overflow-x:clip}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,sans-serif;font-size:19px;line-height:1.5;
+    background:linear-gradient(140deg, #2c5f5d 0%, #355d6c 50%, #6b4a58 100%);
+    background-attachment:fixed;min-height:100vh}
+  body.ur{font-family:"Noto Nastaliq Urdu","Plus Jakarta Sans",serif;line-height:2.1}
+  /* Modern Floating Glass Top Bar */
+  .topbar-glass {
+    position: sticky;
+    top: 10px;
+    z-index: 50;
+    margin: 10px auto 0;
+    width: calc(100% - 20px);
+    max-width: none;
+    height: 64px;
+    box-sizing: border-box;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16), 0 2px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    gap: 12px;
+    transition: all 0.25s ease;
+  }
+  .topbar-glass > :not(.tb-ecg-wrap) {
+    position: relative;
+    z-index: 1;
+  }
+  .tb-ecg-wrap {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    direction: ltr !important;
+  }
+  .tb-ecg-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .tb-ecg-base {
+    stroke: #ffffff;
+    stroke-opacity: 0.16;
+    stroke-width: 1.6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tb-ecg-pulse {
+    stroke: #ffffff;
+    stroke-width: 2.2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 8px rgba(79, 163, 131, 0.5));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tb-ecg-pulse {
+      display: none !important;
+    }
+  }
+
+  /* Adaptive Light Contrast Styles for Header Parts */
+  .tb-brand,
+  .tb-brand *,
+  .tb-clock-chip,
+  .tb-actions,
+  .tb-icon-btn,
+  .tb-lang-seg,
+  .tb-lang-btn,
+  .tb-title,
+  .tb-sub,
+  .tb-ecg-base,
+  .tb-ecg-pulse {
+    transition: color 0.35s ease, border-color 0.35s ease, background-color 0.35s ease, stroke 0.35s ease, fill 0.35s ease, box-shadow 0.35s ease;
+  }
+
+  /* Left Brand Part on Light */
+  .tb-brand.on-light .tb-title {
+    color: #1f3a3f !important;
+    text-shadow: none !important;
+  }
+  .tb-brand.on-light .tb-sub {
+    color: #4d5f66 !important;
+  }
+
+  /* Center Clock Chip on Light */
+  .tb-clock-chip.on-light {
+    color: #1f3a3f !important;
+    background: rgba(31, 58, 63, 0.08) !important;
+    border-color: rgba(31, 58, 63, 0.18) !important;
+  }
+
+  /* Right Actions Group on Light */
+  .tb-actions.on-light .tb-icon-btn {
+    color: #1f3a3f !important;
+    background: rgba(31, 58, 63, 0.08) !important;
+    border-color: rgba(31, 58, 63, 0.18) !important;
+  }
+  .tb-actions.on-light .tb-icon-btn:hover {
+    background: rgba(31, 58, 63, 0.16) !important;
+    color: #1f3a3f !important;
+  }
+  .tb-actions.on-light .tb-lang-seg {
+    background: rgba(31, 58, 63, 0.10) !important;
+    border-color: rgba(31, 58, 63, 0.18) !important;
+  }
+  .tb-actions.on-light .tb-lang-btn {
+    color: #4d5f66 !important;
+  }
+  .tb-actions.on-light .tb-lang-seg.is-en #tbLangEn,
+  .tb-actions.on-light .tb-lang-seg.is-ur #tbLangUr {
+    color: #1f3a3f !important;
+  }
+
+  /* Topbar Heartbeat Line turns teal (#2a8a84) on light background */
+  .topbar-glass.on-light .tb-ecg-base {
+    stroke: #2a8a84 !important;
+    stroke-opacity: 0.35 !important;
+  }
+  .topbar-glass.on-light .tb-ecg-pulse {
+    stroke: #2a8a84 !important;
+    filter: drop-shadow(0 0 4px rgba(42, 138, 132, 0.85)) drop-shadow(0 0 8px rgba(42, 138, 132, 0.5)) !important;
+  }
+  .tb-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    text-align: start;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+  .tb-brand:active {
+    transform: scale(0.97);
+  }
+  .tb-logo-tile {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3a9a83 0%, #5c6bb5 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(58, 154, 131, 0.32);
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .tb-brand:hover .tb-logo-tile {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(58, 154, 131, 0.42);
+  }
+  .tb-brand.active .tb-logo-tile {
+    box-shadow: 0 0 0 3px rgba(79, 163, 131, 0.45), 0 8px 20px rgba(58, 154, 131, 0.45);
+  }
+  .tb-brand-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.15;
+  }
+  .tb-title {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+    color: var(--heading-light);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+  .tb-sub {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: rgba(243, 245, 242, 0.85);
+    letter-spacing: -0.2px;
+    margin-top: 1px;
+  }
+  body.ur .tb-sub {
+    font-family: "Noto Nastaliq Urdu", "Plus Jakarta Sans", serif;
+    font-size: 12px;
+  }
+
+  /* Center Clock Chip */
+  .tb-clock-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    color: #f3f5f2;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+    flex-shrink: 0;
+  }
+  .tb-clock-sep {
+    opacity: 0.6;
+    font-size: 11px;
+  }
+
+  /* Right Actions */
+  .tb-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* Segmented Language Switch */
+  .tb-lang-seg {
+    direction: ltr !important;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.22);
+    padding: 3px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    height: 38px;
+    width: 104px;
+    box-sizing: border-box;
+  }
+  .tb-lang-pill {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: 48px;
+    background: rgba(249, 250, 247, 0.96);
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+  .tb-lang-seg.is-ur .tb-lang-pill {
+    transform: translateX(48px);
+  }
+  .tb-lang-seg.is-en .tb-lang-pill {
+    transform: translateX(0);
+  }
+  .tb-lang-btn {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    background: none;
+    border: 0;
+    padding: 0;
+    height: 100%;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    color: rgba(243, 245, 242, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+  }
+  .tb-lang-seg.is-en #tbLangEn,
+  .tb-lang-seg.is-ur #tbLangUr {
+    color: #24323a;
+    font-weight: 800;
+  }
+  body.ur #tbLangUr {
+    font-family: "Noto Nastaliq Urdu", "Plus Jakarta Sans", serif;
+    font-size: 13px;
+  }
+
+  /* Action Buttons (Bell, Settings) */
+  .tb-icon-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #f3f5f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .tb-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.30);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+  .tb-icon-btn:active {
+    transform: scale(0.94);
+  }
+  .tb-icon-btn.active {
+    background: rgba(255, 255, 255, 0.32);
+    border-color: #4fa383;
+    color: #4fa383;
+    box-shadow: 0 0 0 3px rgba(79, 163, 131, 0.35);
+  }
+
+  /* Bell badge - soft rose accent */
+  .tb-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #c4757c;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(196, 117, 124, 0.5);
+    pointer-events: none;
+    box-sizing: border-box;
+  }
+
+  /* Avatar button with soft multicolor ring */
+  .tb-avatar-btn {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+  .tb-avatar-btn:active {
+    transform: scale(0.94);
+  }
+  .tb-avatar-ring {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 2.5px;
+    background: linear-gradient(135deg, #f2b8c1 0%, #5c6bb5 50%, #2a8a84 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(92, 107, 181, 0.35);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .tb-avatar-btn:hover .tb-avatar-ring {
+    box-shadow: 0 6px 16px rgba(92, 107, 181, 0.45);
+  }
+  .tb-avatar-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(249, 250, 247, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: #2c6f69;
+    text-transform: uppercase;
+    letter-spacing: -0.3px;
+    overflow: hidden;
+  }
+  .tb-avatar-btn.active .tb-avatar-ring {
+    box-shadow: 0 0 0 3px rgba(79, 163, 131, 0.45), 0 6px 16px rgba(92, 107, 181, 0.5);
+    transform: scale(1.05);
+  }
+
+  /* Responsive Mobile Styling */
+  @media (max-width: 640px) {
+    .topbar-glass {
+      top: 10px;
+      margin: 10px auto 0;
+      width: calc(100% - 20px);
+      max-width: none;
+      height: 56px;
+      padding: 0 8px;
+      gap: 6px;
+      flex-wrap: nowrap;
+      border-radius: 18px;
+    }
+    .tb-clock-chip {
+      display: none !important;
+    }
+    .tb-sub {
+      display: none !important;
+    }
+    .tb-title {
+      font-size: 17px;
+    }
+    .tb-logo-tile {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      border-radius: 10px;
+    }
+    .tb-actions {
+      gap: 5px;
+    }
+    .tb-lang-seg {
+      width: 84px;
+      height: 36px;
+      padding: 2px;
+    }
+    .tb-lang-pill {
+      width: 38px;
+    }
+    .tb-lang-seg.is-ur .tb-lang-pill {
+      transform: translateX(40px);
+    }
+    .tb-lang-seg.is-en .tb-lang-pill {
+      transform: translateX(0);
+    }
+    .tb-lang-btn {
+      font-size: 12px;
+    }
+    .tb-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+    }
+    .tb-icon-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+    .tb-avatar-ring {
+      width: 36px;
+      height: 36px;
+      padding: 2px;
+    }
+    .tb-avatar-inner {
+      font-size: 12px;
+    }
+  }
+
+  /* Soft Animated Medical Background */
+  .medical-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .aurora-wrap {
+    position: absolute;
+    inset: 0;
+    opacity: 0.30;
+    filter: blur(80px);
+    -webkit-filter: blur(80px);
+    transform: translateZ(0);
+    pointer-events: none;
+  }
+  .aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    will-change: transform;
+    pointer-events: none;
+  }
+  .a-sage {
+    width: 620px;
+    height: 620px;
+    left: -12%;
+    top: 15%;
+    background: radial-gradient(circle, #4fa383 0%, rgba(79,163,131,0) 70%);
+    animation: auroraMove1 42s ease-in-out infinite alternate;
+  }
+  .a-rose {
+    width: 650px;
+    height: 650px;
+    right: -10%;
+    top: 25%;
+    background: radial-gradient(circle, #c4757c 0%, rgba(196,117,124,0) 70%);
+    animation: auroraMove2 48s ease-in-out infinite alternate;
+  }
+  .a-blue {
+    width: 680px;
+    height: 680px;
+    left: 20%;
+    bottom: -15%;
+    background: radial-gradient(circle, #3d6a85 0%, rgba(61,106,133,0) 70%);
+    animation: auroraMove3 38s ease-in-out infinite alternate;
+  }
+  .a-indigo {
+    width: 560px;
+    height: 560px;
+    right: 18%;
+    top: -10%;
+    background: radial-gradient(circle, #5c6bb5 0%, rgba(92,107,181,0) 70%);
+    animation: auroraMove4 45s ease-in-out infinite alternate;
+  }
+  .a-sage2 {
+    width: 540px;
+    height: 540px;
+    left: 45%;
+    top: 40%;
+    background: radial-gradient(circle, #3a8f8c 0%, rgba(58,143,140,0) 70%);
+    animation: auroraMove5 36s ease-in-out infinite alternate;
+  }
+  @keyframes auroraMove1 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(80px, 60px) scale(1.15); }
+    100% { transform: translate(30px, -50px) scale(0.92); }
+  }
+  @keyframes auroraMove2 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-90px, -70px) scale(1.18); }
+    100% { transform: translate(-40px, 80px) scale(0.9); }
+  }
+  @keyframes auroraMove3 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-60px, -80px) scale(1.12); }
+    100% { transform: translate(70px, -30px) scale(0.95); }
+  }
+  @keyframes auroraMove4 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(70px, 90px) scale(1.2); }
+    100% { transform: translate(-50px, 40px) scale(0.88); }
+  }
+  @keyframes auroraMove5 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-70px, 50px) scale(1.14); }
+    100% { transform: translate(60px, -60px) scale(0.94); }
+  }
+
+  /* ECG Paper Grid (24px small squares, 120px big squares, 0.04 opacity) */
+  .ecg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px);
+    background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+    pointer-events: none;
+  }
+
+  /* ECG Heartbeat Line at about 46% height */
+  .ecg-line-wrap {
+    position: absolute;
+    top: 46%;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    overflow: visible;
+  }
+  .ecg-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+  .ecg-base-line {
+    stroke: rgba(255, 255, 255, 0.07);
+    stroke-width: 1.6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ecg-pulse-line {
+    stroke: #ffffff;
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 10px rgba(79, 163, 131, 0.65));
+  }
+
+  /* Sparkles: 14 slowly twinkling white sparkles, max opacity 0.45 */
+  .sparkles-wrap {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .sparkle {
+    position: absolute;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    will-change: opacity, transform;
+    animation: sparkleTwinkle ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes sparkleTwinkle {
+    0%, 100% { opacity: 0; transform: scale(0.6); }
+    50% { opacity: 0.45; transform: scale(1.15); }
+  }
+
+  /* Full-screen 3D Medicine Objects Canvas with radial center mask */
+  .med-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.18) 180px, rgba(0,0,0,0.7) 320px, rgba(0,0,0,1) 480px);
+    mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.18) 180px, rgba(0,0,0,0.7) 320px, rgba(0,0,0,1) 480px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      animation-delay: 0ms !important;
+      scroll-behavior: auto !important;
+    }
+    .aurora-blob,
+    .sparkle,
+    .ecg-pulse-line,
+    .screen-ecg-path,
+    .screen-ecg-bottom,
+    .start-outer-ring,
+    .start-inner-dotted,
+    .start-pulse-ring,
+    .start-orbit-wrap,
+    .start-capsule-float,
+    .cap-half-top,
+    .cap-half-bottom,
+    .cap-dot,
+    .start-mini-ecg,
+    .start-title,
+    .start-chip,
+    .start-btn-sweep::after,
+    .d-hello::before,
+    .scan-ring-pulse,
+    .spinner,
+    .hero,
+    .tb-lang-pill {
+      animation: none !important;
+      transform: none !important;
+    }
+    .aurora-wrap {
+      opacity: 0.15 !important;
+    }
+    .ecg-pulse-line {
+      display: none !important;
+    }
+    .screen-ecg-bottom {
+      display: none !important;
+    }
+    .start-chip {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .start-mini-ecg {
+      stroke-dashoffset: 0 !important;
+      opacity: 0.8 !important;
+    }
+    .start-logo-box {
+      animation: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+  }
+
+  main{max-width:680px;margin:0 auto;padding:24px 16px 140px;position:relative;z-index:10;width:100%}
+  .screen{display:none;width:100%;max-width:680px;margin:0 auto}
+  #home.screen{max-width:100%}
+  .screen.active{display:block;animation:fadeUp .45s ease}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .hero{width:150px;height:150px;margin:18px auto 8px;border-radius:44px;display:flex;align-items:center;justify-content:center;
+    font-size:56px;background:var(--grad);box-shadow:0 20px 45px rgba(42,138,132,.35),inset 0 2px 0 rgba(255,255,255,.4);
+    animation:float 4s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-10px) rotate(-3deg)}}
+  .tagline{text-align:center;font-size:26px;font-weight:800;margin:14px 0 22px;letter-spacing:-.5px;
+    color:#f3f5f2;text-shadow:0 1px 3px rgba(0,0,0,0.25)}
+  .big{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;border:0;border-radius:22px;padding:20px;
+    font-size:21px;font-weight:800;cursor:pointer;margin:12px 0;font-family:inherit;transition:transform .15s,box-shadow .2s}
+  .big:hover{transform:translateY(-2px)}
+  .big:active{transform:scale(.97)}
+  .primary{background:linear-gradient(135deg,#2a8a84 0%,#4fa383 100%);color:#fff;box-shadow:0 12px 28px rgba(42,138,132,.35)}
+  .secondary{background:rgba(249,250,247,.94);backdrop-filter:blur(14px);color:#2c6f69;border:1.5px solid rgba(44,111,105,.30);box-shadow:var(--shadow)}
+  .good{background:linear-gradient(135deg,#2a8a84 0%,#4fa383 100%);color:#fff;box-shadow:0 12px 28px rgba(42,138,132,.35)}
+  .warn{background:linear-gradient(135deg,#5c6bb5 0%,#4f5fa8 100%);color:#fff;box-shadow:0 12px 28px rgba(92,107,181,.35)}
+  .danger{background:linear-gradient(135deg,#c4757c 0%,#b15f66 100%);color:#fff;box-shadow:0 8px 20px rgba(196,117,124,.30)}
+  .small{
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 18px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 14px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    white-space: nowrap;
+    outline: none;
+  }
+  .small:hover{ transform: translateY(-1px); }
+  .small:active{ transform: scale(0.97) !important; }
+
+  .small.secondary{
+    background: #f9faf7;
+    color: #2c6f69;
+    border-color: rgba(44, 111, 105, 0.3);
+  }
+  .small.secondary:hover { background: #f0f2ee; }
+
+  .small.danger{
+    background: #fbeeee;
+    color: #8c3a40;
+    border-color: rgba(140, 58, 64, 0.25);
+  }
+  .small.danger:hover { background: #f8e4e4; }
+
+  .small.primary{
+    background: linear-gradient(135deg, #2a8a84 0%, #4fa383 100%);
+    color: #ffffff;
+    border: 0;
+    box-shadow: 0 8px 20px rgba(42, 138, 132, 0.25);
+  }
+  .small.primary:hover { box-shadow: 0 10px 24px rgba(42, 138, 132, 0.35); }
+
+  /* Edit summary button look */
+  details summary.edit-btn {
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 18px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 14px;
+    border: 1.5px solid rgba(44, 111, 105, 0.3);
+    cursor: pointer;
+    background: #f9faf7;
+    color: #2c6f69;
+    transition: all 0.2s ease;
+    list-style: none;
+    margin-top: 12px;
+    box-sizing: border-box;
+  }
+  details summary.edit-btn:hover { background: #f0f2ee; transform: translateY(-1px); }
+  details summary.edit-btn:active { transform: scale(0.97); }
+  details summary.edit-btn::-webkit-details-marker { display: none; }
+
+  .card{background:rgba(249,250,247,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.65);border-radius:24px;padding:20px;margin:16px 0;box-shadow:var(--shadow);
+    color:#24323a;
+    animation:fadeUp .4s ease}
+  #nextReminder{background:linear-gradient(135deg,#2a8a84 0%,#3e9c7f 100%);color:#fff;border:0;box-shadow:0 14px 32px rgba(42,138,132,.35)}
+  .medname{font-size:25px;font-weight:800;margin:0;letter-spacing:-.4px;color:#24323a}
+  .muted{color:var(--muted)}
+  
+  /* Headings sitting directly on the coloured background are light #f3f5f2 */
+  main > .screen > h2, main > .screen > h3,
+  .screen > h2, .screen > h3,
+  #meds > h2, #reminders > h2 {
+    color:#f3f5f2;
+    text-shadow:0 1px 3px rgba(0,0,0,0.25);
+    letter-spacing:-.4px;
+    margin:24px 4px 10px;
+    font-weight:800;
+  }
+  .card h2, .card h3{color:#24323a;letter-spacing:-.4px;margin:4px 0 10px;text-shadow:none;font-weight:800}
+
+  /* Warning Banners: calm, eye-friendly, high contrast */
+  .banner{border-radius:18px;padding:14px 18px;margin:12px 0;font-weight:700;border:1px solid transparent}
+  .banner.orange{background:#fbf3e8;color:#87542a;border-color:rgba(135,84,42,.22);box-shadow:inset 4px 0 0 #87542a, 0 4px 16px rgba(135,84,42,.08)}
+  .banner.red{background:#fbeeee;color:#8c3a40;border-color:rgba(140,58,64,.22);box-shadow:inset 4px 0 0 #8c3a40, 0 4px 16px rgba(140,58,64,.08);animation:shake .5s ease}
+  .banner.green{background:#edf6f1;color:#2f6b52;border-color:rgba(47,107,82,.22);box-shadow:inset 4px 0 0 #2f6b52, 0 4px 16px rgba(47,107,82,.08)}
+  @keyframes shake{20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+  .timeline{display:flex;gap:10px;margin:14px 0}
+  .slot{flex:1;text-align:center;border-radius:18px;padding:12px 4px;font-size:15px;font-weight:700;
+    background:rgba(36,50,58,.06);color:var(--muted);opacity:.75;transition:.2s}
+  .slot.on{opacity:1;background:linear-gradient(135deg,#2a8a84 0%,#4fa383 100%);color:#fff;box-shadow:0 8px 20px rgba(42,138,132,.35)}
+  .slot .ico{font-size:32px;display:block;margin-bottom:2px}
+  label{display:block;font-size:15px;font-weight:600;color:var(--muted);margin-top:10px}
+  input,select{width:100%;font-size:18px;padding:12px 14px;border:1.5px solid rgba(100,115,123,.25);border-radius:14px;
+    font-family:inherit;background:rgba(249,250,247,.98);color:#24323a;transition:.2s;outline:none}
+  input:focus,select:focus{border-color:#2a8a84;box-shadow:0 0 0 4px rgba(42,138,132,.18)}
+  input[type=time]{font-size:26px;font-weight:800;padding:8px 12px;color:#2c6f69}
+  input[type=checkbox]{accent-color:#2a8a84}
+  details summary{font-weight:700;color:#2c6f69;margin-top:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .row > *{flex:1}
+  #photoPreview{width:100%;border-radius:20px;margin-top:12px;display:none;box-shadow:var(--shadow)}
+  .spinner{width:64px;height:64px;margin:22px auto;border-radius:50%;
+    background:conic-gradient(from 0deg,transparent 0 25%,#2a8a84,#4fa383,#5c6bb5);
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 8px),#000 0);
+    mask:radial-gradient(farthest-side,transparent calc(100% - 8px),#000 0);animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  footer{position:static;max-width:640px;margin:24px auto 14px;padding:12px 16px;text-align:center;font-size:13.5px;color:rgba(243,245,242,.75);background:transparent;border-top:1px dashed rgba(243,245,242,.25)}
+  .hidden{display:none !important}
+  button[data-t="back"], .back-btn{display:none !important}
+
+  /* Modern Floating Bottom Menu (Dock) */
+  #dock{
+    position:fixed;bottom:10px;left:50%;transform:translateX(-50%);
+    width:calc(100% - 20px);max-width:none;height:74px;border-radius:28px;
+    background:rgba(249,250,247,.94);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+    box-shadow:0 14px 34px rgba(15,23,42,.26),0 4px 12px rgba(0,0,0,.06);
+    border:1px solid rgba(255,255,255,.85);
+    display:flex;align-items:center;justify-content:space-around;
+    z-index:45;padding:0 8px;transition:opacity .25s ease,transform .25s ease;
+  }
+  #dock.hidden{display:none !important}
+  .dock-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    height:100%;background:none;border:0;outline:none;cursor:pointer;
+    color:#64737b;font-family:inherit;padding:8px 2px 6px;position:relative;
+    transition:color .2s ease,transform .15s ease;
+  }
+  .dock-btn:active{transform:scale(.93)}
+  .dock-btn svg{transition:stroke .2s ease,transform .2s ease}
+  .dock-btn.active{color:#2c6f69}
+  .dock-btn.active svg{stroke:#2c6f69}
+  .dock-lbl{font-size:12px;font-weight:700;margin-top:3px;line-height:1;letter-spacing:-.2px;white-space:nowrap}
+  body.ur .dock-lbl{font-family:"Noto Nastaliq Urdu","Plus Jakarta Sans",serif;font-size:13px;margin-top:2px}
+  .dock-line{
+    width:18px;height:3px;border-radius:99px;
+    background:linear-gradient(90deg,#2a8a84,#4fa383);
+    margin-top:3px;opacity:0;transform:scaleX(0);
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .dock-btn.active .dock-line{opacity:1;transform:scaleX(1)}
+
+  /* Center raised rounded-square Scan button */
+  .dock-scan-wrap{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    position:relative;height:100%;
+  }
+  .dock-scan-btn{
+    width:70px;height:70px;margin-top:-26px;border-radius:22px;
+    background:linear-gradient(135deg,#2a8a84 0%,#4fa383 100%);
+    border:3.5px solid rgba(249,250,247,.95);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:#fff;position:relative;
+    box-shadow:0 10px 24px rgba(42,138,132,.40);
+    transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+    outline:none;
+  }
+  .dock-scan-btn:hover{transform:translateY(-2px) scale(1.03)}
+  .dock-scan-btn:active{transform:scale(.94)}
+  .dock-scan-pulse{
+    position:absolute;inset:-6px;border-radius:26px;
+    border:2.5px solid rgba(42,138,132,.50);
+    animation:dockScanPulse 2.4s cubic-bezier(.24,0,.38,1) infinite;
+    pointer-events:none;
+  }
+  @keyframes dockScanPulse{
+    0%{transform:scale(.95);opacity:.85}
+    70%{transform:scale(1.24);opacity:0}
+    100%{transform:scale(1.24);opacity:0}
+  }
+  .dock-scan-lbl{color:#2c6f69;font-weight:800;font-size:12px;margin-top:2px}
+  body.ur .dock-scan-lbl{font-family:"Noto Nastaliq Urdu","Plus Jakarta Sans",serif;font-size:13px}
+  .switch{width:28px;height:28px;flex:0 0 auto}
+  .hist{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--line);color:#24323a}
+  #alarm{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;text-align:center;color:#f3f5f2;
+    background:radial-gradient(circle at 50% 30%,#2a8a84,#2c5f5d 60%,#24323a)}
+  #alarm.show{display:flex;animation:fadeUp .3s ease}
+  #alarm .pill{position:relative;width:170px;height:170px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:84px;background:rgba(255,255,255,.16);backdrop-filter:blur(10px)}
+  #alarm .pill::before,#alarm .pill::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid rgba(255,255,255,.6);animation:ring 2s ease-out infinite}
+  #alarm .pill::after{animation-delay:1s}
+  @keyframes ring{from{transform:scale(1);opacity:1}to{transform:scale(1.8);opacity:0}}
+  #alarm h2{font-size:34px;font-weight:800;margin:26px 0 8px;color:#f3f5f2}
+  #alarm .msg{font-size:21px;margin-bottom:12px;opacity:.95;color:#f3f5f2}
+  #alarm button{max-width:460px}
+  #alarm .secondary{background:rgba(249,250,247,.2);color:#f3f5f2;border:1px solid rgba(255,255,255,.4)}
+  /* Start Screen & Login Screen Overlay */
+  #unlock, #login {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 18px;
+    text-align: center;
+    color: #f3f5f2;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(217, 145, 153, 0.32) 0%, transparent 60%),
+      radial-gradient(circle at 50% 82%, rgba(196, 117, 124, 0.25) 0%, transparent 55%),
+      linear-gradient(140deg, rgba(44, 95, 93, 0.65) 0%, rgba(53, 93, 108, 0.65) 50%, rgba(107, 74, 88, 0.65) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Bottom Glowing White ECG Line */
+  .screen-ecg-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 64px;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0.88;
+  }
+  .screen-ecg-bottom svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .screen-ecg-path {
+    stroke: #ffffff;
+    stroke-width: 2.2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 12px rgba(79, 163, 131, 0.7));
+  }
+
+  /* Start Screen Content Box */
+  .unlock-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 540px;
+    width: 100%;
+    margin: auto 0;
+  }
+
+  /* 1. Animated SVG Logo (210px) */
+  .start-logo-box {
+    width: 210px;
+    height: 210px;
+    margin: 0 auto 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: startLogoPop 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes startLogoPop {
+    from { opacity: 0; transform: scale(0.65) rotate(-14deg); }
+    to { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  .start-outer-ring {
+    transform-origin: 105px 105px;
+    animation: spinClockwise 22s linear infinite;
+  }
+  @keyframes spinClockwise {
+    to { transform: rotate(360deg); }
+  }
+
+  .start-inner-dotted {
+    transform-origin: 105px 105px;
+    animation: spinCounter 18s linear infinite;
+  }
+  @keyframes spinCounter {
+    to { transform: rotate(-360deg); }
+  }
+
+  .start-pulse-ring {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.55);
+    stroke-width: 1.5;
+    transform-origin: 105px 105px;
+    animation: startRingPulse 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+  .start-pulse-ring.p2 {
+    animation-delay: 1.6s;
+  }
+  @keyframes startRingPulse {
+    0% { r: 62px; opacity: 0.7; }
+    100% { r: 104px; opacity: 0; }
+  }
+
+  .start-orbit-wrap {
+    transform-origin: 105px 105px;
+    animation: startOrbit 14s linear infinite;
+  }
+  @keyframes startOrbit {
+    to { transform: rotate(360deg); }
+  }
+
+  .start-capsule-float {
+    animation: capFloat 3.8s ease-in-out infinite;
+  }
+  @keyframes capFloat {
+    0%, 100% { transform: translateY(-3px); }
+    50% { transform: translateY(4px); }
+  }
+
+  .cap-half-top {
+    animation: capSplitTop 4.6s ease-in-out infinite;
+  }
+  .cap-half-bottom {
+    animation: capSplitBtm 4.6s ease-in-out infinite;
+  }
+  @keyframes capSplitTop {
+    0%, 60%, 100% { transform: translate(0, 0); }
+    72%, 84% { transform: translate(-7px, 0); }
+  }
+  @keyframes capSplitBtm {
+    0%, 60%, 100% { transform: translate(0, 0); }
+    72%, 84% { transform: translate(7px, 0); }
+  }
+
+  .cap-dot {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cap-dot.dot1 { animation: emitDot1 4.6s ease-out infinite; }
+  .cap-dot.dot2 { animation: emitDot2 4.6s ease-out infinite; }
+  .cap-dot.dot3 { animation: emitDot3 4.6s ease-out infinite; }
+  @keyframes emitDot1 {
+    0%, 62% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+    74% { opacity: 1; transform: translate(-14px, -15px) scale(1.3); }
+    88%, 100% { opacity: 0; transform: translate(-22px, -24px) scale(0.4); }
+  }
+  @keyframes emitDot2 {
+    0%, 64% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+    76% { opacity: 1; transform: translate(0px, -20px) scale(1.4); }
+    90%, 100% { opacity: 0; transform: translate(0px, -32px) scale(0.4); }
+  }
+  @keyframes emitDot3 {
+    0%, 66% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+    78% { opacity: 1; transform: translate(14px, -15px) scale(1.2); }
+    92%, 100% { opacity: 0; transform: translate(22px, -24px) scale(0.4); }
+  }
+
+  .start-mini-ecg {
+    stroke-dasharray: 140;
+    stroke-dashoffset: 140;
+    animation: startEcgDraw 3.4s ease-in-out infinite;
+  }
+  @keyframes startEcgDraw {
+    0% { stroke-dashoffset: 140; opacity: 0; }
+    18% { opacity: 1; }
+    50% { stroke-dashoffset: 0; opacity: 1; }
+    75% { stroke-dashoffset: -140; opacity: 0.9; }
+    100% { stroke-dashoffset: -140; opacity: 0; }
+  }
+
+  /* 2. "MedLens" with slow shimmering gradient */
+  .start-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin: 4px 0 2px;
+    letter-spacing: -0.8px;
+    background: linear-gradient(90deg, #ffffff 0%, #a7f3d0 25%, #ffffff 50%, #f2b8c1 75%, #ffffff 100%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmerText 5.5s linear infinite;
+    text-shadow: 0 2px 14px rgba(255, 255, 255, 0.15);
+  }
+  @keyframes shimmerText {
+    0% { background-position: 100% 0; }
+    100% { background-position: -150% 0; }
+  }
+
+  /* 3. Tagline */
+  .start-tagline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 20px;
+  }
+  .start-tagline .tag-en {
+    font-size: 19px;
+    font-weight: 700;
+    color: #f3f5f2;
+    letter-spacing: -0.2px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+  .start-tagline .tag-ur {
+    font-family: "Noto Nastaliq Urdu", serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: rgba(243, 245, 242, 0.95);
+    margin-top: -2px;
+  }
+
+  /* 4. Four glass chips that fade up one by one */
+  .start-chips {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 480px;
+    margin: 0 auto 20px;
+  }
+  .start-chip {
+    background: rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    padding: 7px 15px;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #f3f5f2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    animation: chipFadeUp 0.6s ease forwards;
+    opacity: 0;
+  }
+  .start-chip.c1 { animation-delay: 0.15s; }
+  .start-chip.c2 { animation-delay: 0.30s; }
+  .start-chip.c3 { animation-delay: 0.45s; }
+  .start-chip.c4 { animation-delay: 0.60s; }
+  @keyframes chipFadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 5. Short message & White "Start MedLens" button with light sweep animation */
+  .start-msg {
+    font-size: 16.5px;
+    font-weight: 600;
+    color: rgba(243, 245, 242, 0.90);
+    max-width: 440px;
+    margin: 0 auto 20px;
+    line-height: 1.45;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+  .start-btn-sweep {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 380px;
+    background: #ffffff;
+    color: #245752;
+    border: 0;
+    border-radius: 22px;
+    padding: 18px 28px;
+    font-size: 21px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
+    transition: transform 0.18s ease, box-shadow 0.2s ease;
+  }
+  .start-btn-sweep:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  }
+  .start-btn-sweep:active {
+    transform: scale(0.97);
+  }
+  .start-btn-sweep::after {
+    content: "";
+    position: absolute;
+    top: -60%;
+    left: -70%;
+    width: 60%;
+    height: 220%;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.75) 50%, transparent 100%);
+    transform: rotate(25deg);
+    animation: btnLightSweep 3.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes btnLightSweep {
+    0% { left: -70%; }
+    40%, 100% { left: 160%; }
+  }
+
+  /* Dashboard: calm medical greeting gradient & next dose card */
+  .d-hello{border-radius:26px;padding:22px;color:#fff;background:linear-gradient(135deg, #5c6bb5 0%, #3a8f8c 50%, #8a5a68 100%);box-shadow:0 16px 36px rgba(44,95,93,.32);position:relative;overflow:hidden}
+  .d-hello::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.12);pointer-events:none}
+  .d-hello::before{content:"";position:absolute;top:-60%;left:-80%;width:50%;height:220%;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.32) 50%,transparent 100%);transform:rotate(25deg);animation:dHelloSweep 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;pointer-events:none;z-index:2}
+  @keyframes dHelloSweep{
+    0%{left:-80%}
+    15%{left:160%}
+    100%{left:160%}
+  }
+  .d-hello h2{margin:0;font-size:26px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.15)}
+  .d-hello p{margin:4px 0 0;opacity:.95;color:rgba(255,255,255,.92)}
+  
+  .d-top-row{display:flex;flex-direction:column;gap:14px;margin-bottom:16px}
+  .d-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+  .d-mid-grid{display:flex;flex-direction:column;gap:16px;margin:16px 0}
+  .d-mid-grid .card{margin:0}
+  .d-plan-card{margin-top:16px;width:100%}
+
+  .d-stat{background:rgba(249,250,247,.94);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.7);border-radius:22px;padding:16px;box-shadow:var(--shadow);animation:fadeUp .4s ease;color:#24323a}
+  .d-stat .ic{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;margin-bottom:8px}
+  .d-stat .num{font-size:32px;font-weight:800;line-height:1.1;color:#24323a}
+  .d-stat .lbl{font-size:14px;color:var(--muted);font-weight:600}
+  .d-ringwrap{display:flex;align-items:center;gap:18px}
+  .d-ring{--p:0;width:130px;height:130px;flex:0 0 130px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:conic-gradient(#2a8a84 calc(var(--p)*1%),rgba(36,50,58,.08) 0);position:relative}
+  .d-ring::before{content:"";position:absolute;inset:12px;border-radius:50%;background:rgba(249,250,247,.98)}
+  .d-ring span{position:relative;font-size:28px;font-weight:800;color:#2c6f69}
+  .d-bars{display:flex;align-items:flex-end;gap:10px;height:140px;margin-top:12px}
+  .d-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:13px;color:var(--muted);font-weight:700}
+  .d-bar i{display:block;width:100%;max-width:34px;border-radius:10px 10px 4px 4px;background:linear-gradient(180deg,#4fa383,#2a8a84);min-height:4px;transition:height .6s ease}
+  .d-bar i.empty{background:rgba(36,50,58,.08)}
+  .d-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line);color:#24323a}
+  .d-item:last-child{border:0}
+  .d-time{font-weight:800;font-size:18px;min-width:62px;color:#24323a}
+  .d-chip{margin-inline-start:auto;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:800;white-space:nowrap}
+  .c-taken{background:#edf6f1;color:#2f6b52}
+  .c-missed{background:#fbeeee;color:#8c3a40}
+  .c-up{background:#eef2fa;color:#435496}
+  .c-due{background:#fbf3e8;color:#87542a}
+  .d-next{display:flex;align-items:center;gap:14px;border-radius:22px;padding:18px;color:#fff;background:linear-gradient(135deg, #2a8a84 0%, #3e9c7f 100%);box-shadow:0 14px 30px rgba(42,138,132,.35)}
+  .d-next .big-t{font-size:30px;font-weight:800}
+
+  /* Floating Sidebar Base Styles */
+  .desktop-sidebar {
+    display: none;
+    position: fixed;
+    top: 92px;
+    bottom: 14px;
+    left: 14px;
+    width: 236px;
+    z-index: 45;
+    background: rgba(249, 250, 247, 0.92);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-radius: 26px;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.22), 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 16px 12px;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    color: #24323a;
+  }
+
+  body.ur .desktop-sidebar,
+  html[dir="rtl"] .desktop-sidebar {
+    left: auto;
+    right: 14px;
+  }
+
+  .sb-scan-btn {
+    width: 100%;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #2a8a84 0%, #4fa383 100%);
+    color: #ffffff;
+    border: 0;
+    padding: 13px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 8px 22px rgba(42, 138, 132, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.2s ease;
+    flex-shrink: 0;
+  }
+  .sb-scan-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(42, 138, 132, 0.42);
+  }
+  .sb-scan-btn:active {
+    transform: scale(0.97);
+  }
+
+  .sb-label {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #64737b;
+    letter-spacing: 0.8px;
+    padding: 6px 10px 2px;
+    text-transform: uppercase;
+  }
+
+  .sb-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sb-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 16px;
+    background: none;
+    border: 0;
+    color: #64737b;
+    font-size: 15.5px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: start;
+    width: 100%;
+    transition: all 0.2s ease;
+  }
+  .sb-item:hover {
+    background: rgba(42, 138, 132, 0.08);
+    color: #2c6f69;
+  }
+  .sb-item.active {
+    background: #edf6f1;
+    color: #2c6f69;
+    font-weight: 800;
+  }
+  .sb-item svg {
+    flex-shrink: 0;
+    transition: stroke 0.2s ease;
+  }
+  .sb-item.active svg {
+    stroke: #2c6f69;
+  }
+
+  .sb-indicator {
+    position: absolute;
+    left: 4px;
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+    border-radius: 99px;
+    background: linear-gradient(180deg, #2a8a84, #4fa383);
+    opacity: 0;
+    transform: scaleY(0);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  body.ur .sb-indicator,
+  html[dir="rtl"] .sb-indicator {
+    left: auto;
+    right: 4px;
+  }
+  .sb-item.active .sb-indicator {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  .sb-badge {
+    margin-inline-start: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #c4757c;
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(196, 117, 124, 0.35);
+  }
+
+  .sb-today-card {
+    margin-top: auto;
+    border-radius: 20px;
+    padding: 14px;
+    background: linear-gradient(135deg, #2a8a84 0%, #3e9c7f 100%);
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(42, 138, 132, 0.30);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .sb-today-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13.5px;
+    font-weight: 800;
+  }
+  .sb-today-bar {
+    width: 100%;
+    height: 6px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.25);
+    overflow: hidden;
+  }
+  .sb-today-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: #ffffff;
+    transition: width 0.4s ease;
+  }
+  .sb-today-sub {
+    font-size: 12.5px;
+    font-weight: 700;
+    opacity: 0.95;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Screens wider than 1024px Layout Override */
+  @media (min-width: 1025px) {
+    .topbar-glass {
+      width: calc(100% - 28px) !important;
+      max-width: none !important;
+      margin: 14px 14px 0 !important;
+      top: 14px !important;
+      border-radius: 24px !important;
+    }
+
+    #dock {
+      display: none !important;
+    }
+
+    .desktop-sidebar {
+      display: flex !important;
+    }
+
+    main {
+      max-width: none !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding-top: 18px !important;
+      padding-left: 274px !important;
+      padding-right: 28px !important;
+      padding-bottom: 50px !important;
+      box-sizing: border-box !important;
+    }
+
+    body.ur main,
+    html[dir="rtl"] main {
+      padding-left: 28px !important;
+      padding-right: 274px !important;
+    }
+
+    #home.screen {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    .screen:not(#home) {
+      max-width: 760px !important;
+      margin: 0 auto !important;
+    }
+
+    footer {
+      padding-left: 274px !important;
+      padding-right: 28px !important;
+      max-width: none !important;
+    }
+
+    body.ur footer,
+    html[dir="rtl"] footer {
+      padding-left: 28px !important;
+      padding-right: 274px !important;
+    }
+
+    .d-top-row.has-side {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 16px !important;
+      align-items: stretch !important;
+      margin-bottom: 16px !important;
+    }
+    .d-top-row .d-hello {
+      margin: 0 !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 120px;
+    }
+    .d-top-row .d-next {
+      margin: 0 !important;
+      display: flex;
+      align-items: center;
+      min-height: 120px;
+    }
+    .d-top-row .d-next-fallback {
+      margin: 0 !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+    }
+    .d-grid {
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 16px !important;
+      margin: 16px 0 !important;
+    }
+    .d-mid-grid {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 16px !important;
+      margin: 16px 0 !important;
+      align-items: stretch !important;
+    }
+    .d-mid-grid .card {
+      margin: 0 !important;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .d-plan-card {
+      width: 100% !important;
+      margin-top: 16px !important;
+    }
+  }
+
+  /* Profile + Login */
+  #login{position:fixed;inset:0;z-index:55;display:none;align-items:center;justify-content:center;padding:20px;
+    background:linear-gradient(140deg, rgba(44,95,93,.92) 0%, rgba(53,93,108,.92) 50%, rgba(107,74,88,.92) 100%);backdrop-filter:blur(8px)}
+  #login.show{display:flex}
+  .auth-card{width:100%;max-width:420px;background:rgba(249,250,247,.96);backdrop-filter:blur(18px);border-radius:28px;padding:26px;
+    box-shadow:0 30px 60px rgba(0,0,0,.3);animation:fadeUp .4s ease;text-align:center;color:#24323a;border:1px solid rgba(255,255,255,.6)}
+  .auth-card h2{margin:10px 0 4px;font-size:26px;color:#24323a}
+  .auth-card input{text-align:center}
+  .pin{letter-spacing:12px;font-size:28px !important;font-weight:800}
+  .avatar{width:96px;height:96px;margin:0 auto;border-radius:30px;display:flex;align-items:center;justify-content:center;
+    font-size:40px;font-weight:800;color:#fff;background:linear-gradient(135deg, #b56b78 0%, #3a8f8c 100%);box-shadow:0 14px 30px rgba(181,107,120,.35)}
+  .p-head{display:flex;align-items:center;gap:16px;border-radius:26px;padding:20px;color:#fff;background:linear-gradient(135deg, #2a8a84 0%, #4fa383 100%);box-shadow:0 16px 34px rgba(42,138,132,.35)}
+  .p-head .avatar{margin:0;width:78px;height:78px;font-size:32px;border-radius:24px;background:rgba(255,255,255,.25);box-shadow:none}
+  .p-head h2{margin:0;color:#fff;font-size:26px}
+  .p-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .p-tag{background:rgba(255,255,255,.22);border-radius:999px;padding:3px 12px;font-size:14px;font-weight:700}
+  .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .auth-err{color:#8c3a40;font-weight:700;min-height:24px;margin-top:8px}
+  .link-btn{background:none;border:0;color:#5c6bb5;font-weight:700;font-size:15px;cursor:pointer;margin-top:10px;font-family:inherit}
+  /* Lively Dashboard Tiles */
+  .d-stat.lively { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
+  .d-stat.lively:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.12); }
+  .ic-wrap { position: relative; width: 44px; height: 44px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
+  .ic-glow { position: absolute; inset: -4px; border-radius: 50%; filter: blur(12px); opacity: 0.25; z-index: 0; }
+  .d-stat .ic { position: relative; z-index: 1; margin: 0 !important; border-radius: 12px; }
+  .sub-lbl { font-size: 13px; color: var(--ink); opacity: 0.7; margin-top: 4px; font-weight: 500; }
+  .mini-progress { height: 4px; background: rgba(0,0,0,0.06); border-radius: 99px; margin-top: 6px; overflow: hidden; width: 100%; }
+  .mini-progress .fill { height: 100%; background: #2a8a84; border-radius: 99px; transition: width 1s ease-out; }
+  .warn-text { color: #c4757c; opacity: 1; }
+  .safe-text { color: #2a8a84; opacity: 1; }
+  @keyframes animUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .anim-up { animation: animUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { .anim-up { animation: none; opacity: 1; } .d-stat.lively:hover { transform: none; } }
+</style>
+<script>
+window.unlockApp = window.unlockApp || function(){
+  try{
+    window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    g.gain.value = 0.0001; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.05);
+  }catch(e){}
+  try{ speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); }catch(e){}
+  const un = document.getElementById("unlock");
+  if(un) un.style.display = "none";
+  if(typeof isLogged === 'function' && !isLogged()){
+    typeof lock === 'function' ? lock() : null;
+  } else {
+    document.getElementById("dock")?.classList.remove("hidden");
+    typeof show === 'function' ? show("home") : null;
+  }
+};
+</script>
+</head>
+<body>
+
+<!-- Soft Animated Medical Background (Aurora lights, ECG grid, Heartbeat line, Sparkles) -->
+<div id="medicalBg" class="medical-bg" aria-hidden="true">
+  <!-- 1. Aurora lights: five very large blurred radial-gradient circles -->
+  <div class="aurora-wrap">
+    <div class="aurora-blob a-sage"></div>
+    <div class="aurora-blob a-rose"></div>
+    <div class="aurora-blob a-blue"></div>
+    <div class="aurora-blob a-indigo"></div>
+    <div class="aurora-blob a-sage2"></div>
+  </div>
+
+  <!-- 2. ECG paper grid: 24px small squares and 120px big squares at 0.04 opacity -->
+  <div class="ecg-grid"></div>
+
+  <!-- 3. Heartbeat (ECG) line across the screen at about 46% height -->
+  <div class="ecg-line-wrap">
+    <svg class="ecg-svg" viewBox="0 0 1440 80" preserveAspectRatio="none">
+      <!-- Faint base line -->
+      <path class="ecg-base-line" d="M 0 40 L 60 40 Q 70 34 80 40 L 95 40 L 102 44 L 112 8 L 122 68 L 130 40 L 145 40 Q 160 30 175 40 L 240 40 L 300 40 Q 310 34 320 40 L 335 40 L 342 44 L 352 8 L 362 68 L 370 40 L 385 40 Q 400 30 415 40 L 480 40 L 540 40 Q 550 34 560 40 L 575 40 L 582 44 L 592 8 L 602 68 L 610 40 L 625 40 Q 640 30 655 40 L 720 40 L 780 40 Q 790 34 800 40 L 815 40 L 822 44 L 832 8 L 842 68 L 850 40 L 865 40 Q 880 30 895 40 L 960 40 L 1020 40 Q 1030 34 1040 40 L 1055 40 L 1062 44 L 1072 8 L 1082 68 L 1090 40 L 1105 40 Q 1120 30 1135 40 L 1200 40 L 1260 40 Q 1270 34 1280 40 L 1295 40 L 1302 44 L 1312 8 L 1322 68 L 1330 40 L 1345 40 Q 1360 30 1375 40 L 1440 40" />
+      <!-- Glowing white pulse line animated via Web Animations API -->
+      <path id="ecgPulse" class="ecg-pulse-line" d="M 0 40 L 60 40 Q 70 34 80 40 L 95 40 L 102 44 L 112 8 L 122 68 L 130 40 L 145 40 Q 160 30 175 40 L 240 40 L 300 40 Q 310 34 320 40 L 335 40 L 342 44 L 352 8 L 362 68 L 370 40 L 385 40 Q 400 30 415 40 L 480 40 L 540 40 Q 550 34 560 40 L 575 40 L 582 44 L 592 8 L 602 68 L 610 40 L 625 40 Q 640 30 655 40 L 720 40 L 780 40 Q 790 34 800 40 L 815 40 L 822 44 L 832 8 L 842 68 L 850 40 L 865 40 Q 880 30 895 40 L 960 40 L 1020 40 Q 1030 34 1040 40 L 1055 40 L 1062 44 L 1072 8 L 1082 68 L 1090 40 L 1105 40 Q 1120 30 1135 40 L 1200 40 L 1260 40 Q 1270 34 1280 40 L 1295 40 L 1302 44 L 1312 8 L 1322 68 L 1330 40 L 1345 40 Q 1360 30 1375 40 L 1440 40" />
+    </svg>
+  </div>
+
+  <!-- 3.5 Floating 3D Medicine Objects Canvas -->
+  <canvas id="medCanvas" class="med-canvas"></canvas>
+
+  <!-- 4. 14 tiny white sparkles slowly twinkling -->
+  <div class="sparkles-wrap">
+    <span class="sparkle" style="top:12%;left:8%;width:3px;height:3px;animation-duration:5.2s;animation-delay:0.2s"></span>
+    <span class="sparkle" style="top:22%;left:88%;width:4px;height:4px;animation-duration:6.8s;animation-delay:1.4s"></span>
+    <span class="sparkle" style="top:38%;left:15%;width:2.5px;height:2.5px;animation-duration:4.8s;animation-delay:2.1s"></span>
+    <span class="sparkle" style="top:48%;left:82%;width:3px;height:3px;animation-duration:7.2s;animation-delay:0.8s"></span>
+    <span class="sparkle" style="top:62%;left:6%;width:4px;height:4px;animation-duration:5.6s;animation-delay:3.3s"></span>
+    <span class="sparkle" style="top:75%;left:92%;width:2.5px;height:2.5px;animation-duration:6.2s;animation-delay:1.8s"></span>
+    <span class="sparkle" style="top:86%;left:22%;width:3px;height:3px;animation-duration:5.0s;animation-delay:2.7s"></span>
+    <span class="sparkle" style="top:18%;left:45%;width:3.5px;height:3.5px;animation-duration:6.4s;animation-delay:4.1s"></span>
+    <span class="sparkle" style="top:29%;left:70%;width:2.5px;height:2.5px;animation-duration:5.8s;animation-delay:1.1s"></span>
+    <span class="sparkle" style="top:54%;left:32%;width:3px;height:3px;animation-duration:7.0s;animation-delay:3.7s"></span>
+    <span class="sparkle" style="top:67%;left:65%;width:4px;height:4px;animation-duration:5.4s;animation-delay:0.5s"></span>
+    <span class="sparkle" style="top:82%;left:78%;width:2.5px;height:2.5px;animation-duration:6.6s;animation-delay:2.4s"></span>
+    <span class="sparkle" style="top:92%;left:52%;width:3px;height:3px;animation-duration:5.9s;animation-delay:4.5s"></span>
+    <span class="sparkle" style="top:8%;left:74%;width:3.5px;height:3.5px;animation-duration:6.1s;animation-delay:3.0s"></span>
+  </div>
+</div>
+
+<div id="unlock">
+  <!-- White glowing ECG heartbeat line near the bottom -->
+  <div class="screen-ecg-bottom" aria-hidden="true">
+    <svg class="screen-ecg-svg" viewBox="0 0 1440 70" preserveAspectRatio="none">
+      <path class="screen-ecg-path" d="M 0 35 L 120 35 L 135 35 L 142 39 L 152 5 L 162 65 L 170 35 L 185 35 Q 200 25 215 35 L 360 35 L 480 35 L 495 35 L 502 39 L 512 5 L 522 65 L 530 35 L 545 35 Q 560 25 575 35 L 720 35 L 840 35 L 855 35 L 862 39 L 872 5 L 882 65 L 890 35 L 905 35 Q 920 25 935 35 L 1080 35 L 1200 35 L 1215 35 L 1222 39 L 1232 5 L 1242 65 L 1250 35 L 1265 35 Q 1280 25 1295 35 L 1440 35" />
+    </svg>
+  </div>
+
+  <div class="unlock-content">
+    <!-- 1. Animated SVG Logo (210px) -->
+    <div class="start-logo-box">
+      <svg viewBox="0 0 210 210" width="210" height="210" style="display:block;overflow:visible">
+        <defs>
+          <!-- Outer gradient: mint to white to pink -->
+          <linearGradient id="startOuterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#a7f3d0" />
+            <stop offset="50%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#f2b8c1" />
+          </linearGradient>
+
+          <!-- Capsule teal gradient -->
+          <linearGradient id="capTealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4fa383" />
+            <stop offset="100%" stop-color="#2a8a84" />
+          </linearGradient>
+
+          <!-- Capsule rose gradient -->
+          <linearGradient id="capRoseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f2b8c1" />
+            <stop offset="100%" stop-color="#c4757c" />
+          </linearGradient>
+        </defs>
+
+        <!-- Glass circle base -->
+        <circle cx="105" cy="105" r="94" fill="rgba(255, 255, 255, 0.09)" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.6" />
+
+        <!-- Two soft pulse rings expanding outward -->
+        <circle class="start-pulse-ring p1" cx="105" cy="105" r="62" />
+        <circle class="start-pulse-ring p2" cx="105" cy="105" r="62" />
+
+        <!-- Outer gradient ring (mint to white to pink) slowly rotating -->
+        <circle class="start-outer-ring" cx="105" cy="105" r="88" fill="none" stroke="url(#startOuterGrad)" stroke-width="3" stroke-linecap="round" stroke-dasharray="130 30 80 40" />
+
+        <!-- Inner dotted ring rotating the other way -->
+        <circle class="start-inner-dotted" cx="105" cy="105" r="76" fill="none" stroke="rgba(255, 255, 255, 0.55)" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 10" />
+
+        <!-- Orbiting pink medical cross -->
+        <g class="start-orbit-wrap">
+          <g transform="translate(105, 17)">
+            <rect x="-3" y="-9" width="6" height="18" rx="2" fill="#f2b8c1" />
+            <rect x="-9" y="-3" width="18" height="6" rx="2" fill="#f2b8c1" />
+          </g>
+        </g>
+
+        <!-- White ECG line under the capsule that draws itself and disappears in a loop -->
+        <path class="start-mini-ecg" d="M 45 152 L 80 152 L 86 156 L 94 134 L 102 168 L 108 152 L 118 152 Q 124 145 130 152 L 165 152" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+
+        <!-- In the middle: two-tone capsule tilted -38 degrees that gently floats and splits -->
+        <g transform="translate(105, 100)">
+          <!-- Soft drop shadow -->
+          <ellipse cx="0" cy="24" rx="28" ry="7" fill="rgba(10, 25, 25, 0.3)" />
+
+          <!-- Floating tilted group -->
+          <g class="start-capsule-float">
+            <g transform="rotate(-38)">
+              <!-- Top / Left half (teal) -->
+              <g class="cap-half-top">
+                <path d="M 0 -15 L -18 -15 A 15 15 0 0 0 -18 15 L 0 15 Z" fill="url(#capTealGrad)" />
+                <path d="M -4 -8 L -16 -8 A 8 8 0 0 0 -22 -2" fill="none" stroke="rgba(255, 255, 255, 0.65)" stroke-width="1.6" stroke-linecap="round" />
+              </g>
+
+              <!-- Bottom / Right half (rose) -->
+              <g class="cap-half-bottom">
+                <path d="M 0 -15 L 18 -15 A 15 15 0 0 1 18 15 L 0 15 Z" fill="url(#capRoseGrad)" />
+                <path d="M 4 -8 L 16 -8 A 8 8 0 0 1 22 -2" fill="none" stroke="rgba(255, 255, 255, 0.65)" stroke-width="1.6" stroke-linecap="round" />
+              </g>
+
+              <!-- Divider line -->
+              <line x1="0" y1="-15" x2="0" y2="15" stroke="rgba(255, 255, 255, 0.45)" stroke-width="1.2" />
+
+              <!-- Three tiny glowing dots released on split -->
+              <circle class="cap-dot dot1" cx="0" cy="0" r="3.2" fill="#ffffff" />
+              <circle class="cap-dot dot2" cx="0" cy="0" r="3.8" fill="#a7f3d0" />
+              <circle class="cap-dot dot3" cx="0" cy="0" r="3.2" fill="#f2b8c1" />
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- 2. "MedLens" with slow shimmering gradient -->
+    <h1 class="start-title">MedLens</h1>
+
+    <!-- 3. Tagline -->
+    <div class="start-tagline">
+      <span class="tag-en">Photo in, voice out</span>
+      <span class="tag-ur">تصویر لیں، آواز سنیں</span>
+    </div>
+
+    <!-- 4. Four glass chips that fade up one by one -->
+    <div class="start-chips">
+      <span class="start-chip c1">📷 <span data-chip="scan">Scan</span></span>
+      <span class="start-chip c2">🔊 <span data-chip="listen">Listen</span></span>
+      <span class="start-chip c3">⏰ <span data-chip="remind">Remind</span></span>
+      <span class="start-chip c4">🛡️ <span data-chip="safe">Stay safe</span></span>
+    </div>
+
+    <!-- 5. Short message & white button with light sweep -->
+    <p class="start-msg" data-t="unlockText"></p>
+    <button class="start-btn-sweep" onclick="unlockApp()">
+      <span data-t="start">Start MedLens</span>
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<div id="login">
+  <!-- White glowing ECG heartbeat line near the bottom -->
+  <div class="screen-ecg-bottom" aria-hidden="true">
+    <svg class="screen-ecg-svg" viewBox="0 0 1440 70" preserveAspectRatio="none">
+      <path class="screen-ecg-path" d="M 0 35 L 120 35 L 135 35 L 142 39 L 152 5 L 162 65 L 170 35 L 185 35 Q 200 25 215 35 L 360 35 L 480 35 L 495 35 L 502 39 L 512 5 L 522 65 L 530 35 L 545 35 Q 560 25 575 35 L 720 35 L 840 35 L 855 35 L 862 39 L 872 5 L 882 65 L 890 35 L 905 35 Q 920 25 935 35 L 1080 35 L 1200 35 L 1215 35 L 1222 39 L 1232 5 L 1242 65 L 1250 35 L 1265 35 Q 1280 25 1295 35 L 1440 35" />
+    </svg>
+  </div>
+  <div class="auth-card" id="authCard"></div>
+</div>
+
+<header id="topBar" class="topbar-glass">
+  <!-- Animated heartbeat (ECG) line background -->
+  <div class="tb-ecg-wrap" aria-hidden="true">
+    <svg id="tbEcgSvg" class="tb-ecg-svg">
+      <path id="tbEcgBase" class="tb-ecg-base"></path>
+      <path id="tbEcgPulse" class="tb-ecg-pulse"></path>
+    </svg>
+  </div>
+  <!-- Left: 42px rounded logo tile + MedLens title + subtitle -->
+  <button type="button" class="tb-brand active" onclick="show('home')" aria-label="MedLens Dashboard" id="tb-brand">
+    <div class="tb-logo-tile">
+      <svg viewBox="0 0 24 24" width="24" height="24" style="display:block">
+        <defs>
+          <linearGradient id="tbTealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4fa383" />
+            <stop offset="100%" stop-color="#2a8a84" />
+          </linearGradient>
+          <linearGradient id="tbRoseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f2b8c1" />
+            <stop offset="100%" stop-color="#c4757c" />
+          </linearGradient>
+        </defs>
+        <g transform="translate(12, 12) rotate(-38)">
+          <path d="M 0 -5.5 L -4.5 -5.5 A 5.5 5.5 0 0 0 -4.5 5.5 L 0 5.5 Z" fill="url(#tbTealGrad)"/>
+          <path d="M 0 -5.5 L 4.5 -5.5 A 5.5 5.5 0 0 1 4.5 5.5 L 0 5.5 Z" fill="url(#tbRoseGrad)"/>
+          <line x1="0" y1="-5.5" x2="0" y2="5.5" stroke="rgba(255,255,255,0.7)" stroke-width="0.8"/>
+          <path d="M -1 -3 L -4 -3" stroke="rgba(255,255,255,0.75)" stroke-width="0.7" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+    <div class="tb-brand-text">
+      <span class="tb-title">MedLens</span>
+      <span class="tb-sub" id="tbSubtitle">Smart medicine assistant</span>
+    </div>
+  </button>
+
+  <!-- Center (Desktop only): Live time + date chip -->
+  <div class="tb-clock-chip" id="tbClockChip">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </svg>
+    <span id="tbTime" class="tb-time">--:--</span>
+    <span class="tb-clock-sep">•</span>
+    <span id="tbDate" class="tb-date">---</span>
+  </div>
+
+  <!-- Right: Lang Switch, Reminders Bell w/ Badge, Settings Gear, User Avatar -->
+  <div class="tb-actions">
+    <!-- a) Segmented language switch "EN | اردو" with sliding light pill -->
+    <div class="tb-lang-seg is-en" id="tbLangSeg" role="group" aria-label="Language selection">
+      <div class="tb-lang-pill" id="tbLangPill"></div>
+      <button type="button" class="tb-lang-btn" id="tbLangEn" onclick="setAppLang('en')">EN</button>
+      <button type="button" class="tb-lang-btn" id="tbLangUr" onclick="setAppLang('ur')">اردو</button>
+    </div>
+
+    <!-- b) Bell icon button for Reminders with rose badge -->
+    <button type="button" class="tb-icon-btn" onclick="show('reminders')" id="tb-reminders" aria-label="Reminders">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+      </svg>
+      <span class="tb-badge" id="tbRemBadge" style="display:none">0</span>
+    </button>
+
+    <!-- c) Settings gear icon button -->
+    <button type="button" class="tb-icon-btn" onclick="show('settings')" id="tb-settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+
+    <!-- d) Round avatar with user's initials and a soft multicolor ring -->
+    <button type="button" class="tb-avatar-btn" onclick="show('profile')" id="tb-profile" aria-label="Profile">
+      <div class="tb-avatar-ring">
+        <div class="tb-avatar-inner" id="tbAvatarText">👤</div>
+      </div>
+    </button>
+  </div>
+</header>
+
+<!-- Floating Sidebar for Desktop Screens (>1024px) -->
+<aside id="desktopSidebar" class="desktop-sidebar" aria-label="Sidebar Navigation">
+  <button type="button" class="sb-scan-btn" onclick="show('scan')">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+      <circle cx="12" cy="13" r="3.5"/>
+    </svg>
+    <span id="sbScanTxt">Scan Medicine</span>
+  </button>
+
+  <div class="sb-label" id="sbMenuLabel">MENU</div>
+
+  <nav class="sb-menu">
+    <button type="button" class="sb-item active" data-sb="home" onclick="show('home')">
+      <div class="sb-indicator"></div>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span data-sb-lbl="home">Dashboard</span>
+    </button>
+
+    <button type="button" class="sb-item" data-sb="meds" onclick="show('meds')">
+      <div class="sb-indicator"></div>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="10" x="3" y="7" rx="5" transform="rotate(-45 12 12)"/><path d="m8.5 8.5 7 7"/></svg>
+      <span data-sb-lbl="meds">My Medicines</span>
+    </button>
+
+    <button type="button" class="sb-item" data-sb="reminders" onclick="show('reminders')">
+      <div class="sb-indicator"></div>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span data-sb-lbl="reminders">Reminders</span>
+      <span class="sb-badge" id="sbRemBadge" style="display:none">0</span>
+    </button>
+
+    <button type="button" class="sb-item" data-sb="profile" onclick="show('profile')">
+      <div class="sb-indicator"></div>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span data-sb-lbl="profile">Profile</span>
+    </button>
+
+    <button type="button" class="sb-item" data-sb="settings" onclick="show('settings')">
+      <div class="sb-indicator"></div>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span data-sb-lbl="settings">Settings</span>
+    </button>
+  </nav>
+
+  <div class="sb-today-card">
+    <div class="sb-today-head">
+      <span id="sbTodayTitle">Today</span>
+      <span id="sbTodayRatio">0 / 0</span>
+    </div>
+    <div class="sb-today-bar">
+      <div class="sb-today-fill" id="sbProgressFill" style="width: 0%"></div>
+    </div>
+    <div class="sb-today-sub" id="sbNextText">--:--</div>
+  </div>
+</aside>
+
+<main>
+  <section id="home" class="screen active">
+    <div id="dashBody"></div>
+  </section>
+
+  <section id="scan" class="screen">
+    <button class="small secondary" onclick="show('home')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span data-t="back"></span></button>
+    <div class="card">
+      <p data-t="scanHelp"></p>
+      <input type="file" id="photo" accept="image/*" capture="environment" class="hidden" onchange="onPhoto(event)">
+      <button class="big primary" onclick="document.getElementById('photo').click()">📷 <span data-t="takePhoto"></span></button>
+      <img id="photoPreview" alt="">
+      <div id="scanStatus"></div>
+    </div>
+    <div id="results"></div>
+  </section>
+
+  <section id="meds" class="screen">
+    <button class="small secondary" onclick="show('home')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span data-t="back"></span></button>
+    <div id="warnings"></div>
+    <h2 data-t="schedule"></h2>
+    <div id="schedule"></div>
+    <h2 data-t="myMeds"></h2>
+    <div id="medList"></div>
+  </section>
+
+  <section id="reminders" class="screen">
+    <button class="small secondary" onclick="show('home')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span data-t="back"></span></button>
+    <button class="small primary" onclick="testAlarm()" style="margin: 12px 0; width: 100%;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> <span data-t="testAlarm"></span></button>
+    <div id="remList"></div>
+    <h2 data-t="today"></h2>
+    <div class="card" id="history"></div>
+  </section>
+
+  <section id="settings" class="screen">
+    <button class="small secondary" onclick="show('home')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span data-t="back"></span></button>
+    <div class="card">
+      <h2 data-t="settings"></h2>
+      <label>Gemini API key</label>
+      <input id="apiKey" type="password" placeholder="AIza...">
+      <label>Gemini model</label>
+      <input id="model" placeholder="gemini-flash-latest">
+      <button class="big primary" onclick="saveSettings()" data-t="save"></button>
+      <p class="muted" style="font-size:15px">The key is saved only in this browser. Use a key with a spending limit for demos.</p>
+    </div>
+    <div class="card">
+      <h3 data-t="urduAudio"></h3>
+      <p class="muted" style="font-size:16px" data-t="urduAudioHelp"></p>
+      <input type="file" accept="audio/*" onchange="onUrduAudio(event)">
+      <p id="urduAudioStatus" class="muted" style="font-size:16px"></p>
+    </div>
+    <div class="card">
+      <h3 data-t="defaultTimes"></h3>
+      <label data-t="morning"></label><input type="time" id="defMorning">
+      <label data-t="afternoon"></label><input type="time" id="defAfternoon">
+      <label data-t="night"></label><input type="time" id="defNight">
+      <button class="big primary" onclick="saveSettings()" data-t="save"></button>
+    </div>
+  </section>
+</main>
+
+<div id="alarm">
+  <div class="pill">💊</div>
+  <h2 id="alarmTitle"></h2>
+  <div class="msg" id="alarmMed"></div>
+  <div class="msg" id="alarmText"></div>
+  <button class="big good" onclick="alarmTook()">✅ <span data-t="took"></span></button>
+  <button class="big secondary" onclick="alarmSnooze()">⏰ <span data-t="snooze"></span></button>
+</div>
+
+<footer data-t="disclaimer"></footer>
+
+<script>
+/* ================= CORE APP ================= */
+window.renderAll = window.renderAll || function(){};
+window.checkWarnings = window.checkWarnings || function(){return [];};
+window.unlockApp = window.unlockApp || function(){};
+
+const T = {
+  en:{
+    tagline:"Photo in, voice out", scan:"Scan Medicine", myMeds:"My Medicines", reminders:"Reminders",
+    back:"← Back", scanHelp:"Take a clear photo of a medicine box, strip, or prescription in good light.",
+    takePhoto:"Take or Upload Photo", reading:"Reading your medicine...", schedule:"Daily Schedule",
+    testAlarm:"Test Alarm", today:"Today", settings:"Settings", save:"Save", saved:"Saved ✓",
+    morning:"Morning", afternoon:"Afternoon", night:"Night", listen:"Listen", saveMed:"Save to My Medicines",
+    unclear:"⚠️ Some details are unclear. Please confirm with your pharmacist.",
+    disclaimer:"MedLens helps you understand medicines. It does not replace your doctor or pharmacist.",
+    took:"I took it", snooze:"Remind me in 10 minutes", timeTitle:"Medicine Time!",
+    alarmVoice:"It's time to take your medicine. Please take your scheduled medication.",
+    noMeds:"No medicines saved yet. Scan a medicine to start.", noRem:"No reminders yet. Save a medicine and reminders are created automatically.",
+    noHist:"Nothing yet today.", taken:"✅ Taken", missed:"❌ Missed", del:"Delete",
+    beforeFood:"before food", afterFood:"after food", withFood:"with food",
+    dose:"Dose", strength:"Strength", name:"Medicine name", generic:"Generic name", howOften:"How often",
+    dup:"⚠️ These contain the same medicine. Do not take both:", noKey:"Please add your Gemini API key in Settings ⚙️ first.",
+    readFail:"Could not read this photo. Please take a clearer photo in good light.", tryAgain:"Try Again",
+    savedMsg:"✅ Saved! Reminders were set automatically.", next:"Next reminder",
+    urduAudio:"Urdu voice recording (optional)", urduAudioHelp:"If your phone has no Urdu voice, record the Urdu reminder message yourself and upload it here. It will play for Urdu reminders.",
+    defaultTimes:"Default reminder times", unlockText:"Tap Start so MedLens can play alarm sounds and speak to you.", start:"Start MedLens",
+    on:"On", testMed:"Test medicine", notNow:"Times", none:"No medicine found in this photo.",
+    edit: "Edit"
+  },
+  ur:{
+    tagline:"تصویر لیں، آواز سنیں", scan:"دوا اسکین کریں", myMeds:"میری دوائیں", reminders:"یاد دہانیاں",
+    back:"→ واپس", scanHelp:"اچھی روشنی میں دوا کے ڈبے، پتے یا نسخے کی صاف تصویر لیں۔",
+    takePhoto:"تصویر لیں یا اپ لوڈ کریں", reading:"آپ کی دوا پڑھی جا رہی ہے...", schedule:"روزانہ کا شیڈول",
+    testAlarm:"الارم آزمائیں", today:"آج", settings:"ترتیبات", save:"محفوظ کریں", saved:"محفوظ ہو گیا ✓",
+    morning:"صبح", afternoon:"دوپہر", night:"رات", listen:"سنیں", saveMed:"میری دواؤں میں محفوظ کریں",
+    unclear:"⚠️ کچھ معلومات واضح نہیں ہیں۔ براہِ کرم اپنے فارماسسٹ سے تصدیق کریں۔",
+    disclaimer:"میڈلینز آپ کو دوائیں سمجھنے میں مدد دیتا ہے۔ یہ ڈاکٹر یا فارماسسٹ کا متبادل نہیں ہے۔",
+    took:"میں نے دوا لے لی", snooze:"10 منٹ بعد یاد دلائیں", timeTitle:"دوا کا وقت!",
+    alarmVoice:"آپ کی دوا لینے کا وقت ہو گیا ہے۔ براہِ کرم اپنی دوا لے لیں۔",
+    noMeds:"ابھی کوئی دوا محفوظ نہیں۔ شروع کرنے کے لیے دوا اسکین کریں۔", noRem:"ابھی کوئی یاد دہانی نہیں۔ دوا محفوظ کریں تو یاد دہانیاں خود بن جائیں گی۔",
+    noHist:"آج ابھی کچھ نہیں۔", taken:"✅ لے لی", missed:"❌ رہ گئی", del:"حذف کریں",
+    beforeFood:"کھانے سے پہلے", afterFood:"کھانے کے بعد", withFood:"کھانے کے ساتھ",
+    dose:"خوراک", strength:"طاقت", name:"دوا کا نام", generic:"اصل نام", howOften:"کتنی بار",
+    dup:"⚠️ ان میں ایک ہی دوا ہے۔ دونوں نہ لیں:", noKey:"پہلے ترتیبات ⚙️ میں اپنی Gemini API key ڈالیں۔",
+    readFail:"یہ تصویر نہیں پڑھی جا سکی۔ اچھی روشنی میں صاف تصویر لیں۔", tryAgain:"دوبارہ کوشش کریں",
+    savedMsg:"✅ محفوظ ہو گیا! یاد دہانیاں خود بخود لگ گئیں۔", next:"اگلی یاد دہانی",
+    urduAudio:"اردو آواز کی ریکارڈنگ (اختیاری)", urduAudioHelp:"اگر آپ کے فون میں اردو آواز نہیں ہے تو اردو پیغام خود ریکارڈ کر کے یہاں اپ لوڈ کریں۔",
+    defaultTimes:"یاد دہانی کے بنیادی اوقات", unlockText:"شروع کریں دبائیں تاکہ میڈلینز الارم بجا سکے اور آپ سے بات کر سکے۔", start:"میڈلینز شروع کریں",
+    on:"آن", testMed:"آزمائشی دوا", notNow:"اوقات", none:"اس تصویر میں کوئی دوا نہیں ملی۔",
+    edit: "ترمیم کریں"
+  }
+};
+
+const ICON = {
+  pillTeal: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2a8a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px;display:inline-block"><rect width="18" height="10" x="3" y="7" rx="5" transform="rotate(-45 12 12)"/><path d="m8.5 8.5 7 7"/></svg>',
+  pillWhite: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><rect width="18" height="10" x="3" y="7" rx="5" transform="rotate(-45 12 12)"/><path d="m8.5 8.5 7 7"/></svg>',
+  clockWhite: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 15 14"/></svg>',
+  checkWhite: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg>',
+  shieldWhite: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  calendarWhite: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;display:inline-block"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  alarmClockWhite: '<svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>',
+  sunCloud: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.9 7.8A6 6 0 0 0 9 4a6.07 6.07 0 0 0-5.8 4.2"/><path d="M3 15a5 5 0 0 0 5 5h9a4 4 0 0 0 1.8-7.6 6 6 0 0 0-8.8-5.4"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>',
+  speaker: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>',
+  pencil: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+  refresh: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+  back: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>'
+};
+
+const INTERACTIONS = [
+  {a:"warfarin", b:"aspirin", en:"Bleeding risk. Ask your doctor before taking these together.", ur:"خون بہنے کا خطرہ۔ ایک ساتھ لینے سے پہلے ڈاکٹر سے پوچھیں۔"},
+  {a:"warfarin", b:"ibuprofen", en:"Bleeding risk. Ask your doctor before taking these together.", ur:"خون بہنے کا خطرہ۔ ایک ساتھ لینے سے پہلے ڈاکٹر سے پوچھیں۔"},
+  {a:"aspirin", b:"ibuprofen", en:"Taking these together can upset the stomach and reduce aspirin's effect.", ur:"ایک ساتھ لینے سے معدہ خراب ہو سکتا ہے اور اسپرین کا اثر کم ہو سکتا ہے۔"},
+  {a:"clopidogrel", b:"omeprazole", en:"Omeprazole may make clopidogrel less effective.", ur:"اومیپرازول، کلوپیڈوگریل کا اثر کم کر سکتی ہے۔"},
+  {a:"sildenafil", b:"nitroglycerin", en:"Dangerous drop in blood pressure. Never take together.", ur:"بلڈ پریشر خطرناک حد تک گر سکتا ہے۔ کبھی ایک ساتھ نہ لیں۔"},
+  {a:"simvastatin", b:"clarithromycin", en:"Risk of muscle damage. Ask your doctor.", ur:"پٹھوں کو نقصان کا خطرہ۔ ڈاکٹر سے پوچھیں۔"},
+  {a:"lisinopril", b:"spironolactone", en:"May raise potassium too high. Ask your doctor.", ur:"پوٹاشیم بہت بڑھ سکتا ہے۔ ڈاکٹر سے پوچھیں۔"}
+];
+
+const SYSTEM_INSTRUCTION = `You read photos of medicine packaging and prescriptions for elderly and low-literacy patients.
+Rules:
+- Only report what is clearly visible. Never guess a drug name, dose, or frequency.
+- Expand abbreviations only when clearly written: OD = once daily, BD = twice daily, TDS = three times daily, HS = at bedtime, SOS = only when needed.
+- Fill "timing" from the frequency: once daily = morning (or night if written HS/at bedtime), twice daily = morning and night, three times daily = morning, afternoon and night. Leave empty if unknown.
+- If anything is unclear, set confidence to "low" and explain what is unclear in unclear_parts.
+- Give the generic (active ingredient) name in lowercase if it is printed or if the brand is very well known; otherwise leave it empty.
+- If the photo shows no medicine, return an empty medicines list.`;
+
+const SCHEMA = {
+  type:"OBJECT",
+  properties:{
+    document_type:{type:"STRING", enum:["prescription","medicine_package","unknown"]},
+    medicines:{type:"ARRAY", items:{type:"OBJECT", properties:{
+      brand_name:{type:"STRING"}, generic_name:{type:"STRING"}, strength:{type:"STRING"},
+      dose:{type:"STRING"}, frequency:{type:"STRING"},
+      timing:{type:"ARRAY", items:{type:"STRING", enum:["morning","afternoon","night"]}},
+      with_food:{type:"STRING", enum:["before","after","with","unspecified"]},
+      duration:{type:"STRING"},
+      confidence:{type:"STRING", enum:["high","medium","low"]},
+      unclear_parts:{type:"STRING"}
+    }, required:["brand_name","confidence","timing"]}},
+    overall_confidence:{type:"STRING", enum:["high","medium","low"]}
+  },
+  required:["medicines","overall_confidence"]
+};
+
+function load(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+function store(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){ console.warn("Storage failed", e); } }
+
+let lang = load("ml_lang", "en");
+let meds = load("ml_meds", []);
+let reminders = load("ml_reminders", []);
+let history = load("ml_history", []);
+let settings = load("ml_settings", {apiKey:"", model:"gemini-flash-latest", times:{morning:"08:00", afternoon:"14:00", night:"21:00"}});
+let lastScan = [];
+let snoozes = [];
+let alarmQueue = [];
+let activeAlarm = null;
+
+const uid = () => Math.random().toString(36).slice(2,10);
+const todayStr = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const nowHM = () => { const d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const t = k => (T[lang] && T[lang][k]) || T.en[k] || k;
+
+window.load = load;
+window.store = store;
+window.todayStr = todayStr;
+window.nowHM = nowHM;
+window.esc = esc;
+window.t = t;
+
+window.MedReminders = window.MedReminders || {
+  addMedicine: function(med){},
+  setLanguage: function(l){}
+};
+
+function isLogged(){
+  try{ return sessionStorage.getItem("ml_logged")==="1"; }catch(e){ return false; }
+}
+function lock(){
+  try{ sessionStorage.removeItem("ml_logged"); }catch(e){}
+  if(window.MLAuth && window.MLAuth.render){ window.MLAuth.render(); }
+  document.getElementById("login")?.classList.add("show");
+  document.getElementById("dock")?.classList.add("hidden");
+}
+
+function updateDock(activeId){
+  const dock = document.getElementById("dock");
+  if(!dock) return;
+  dock.querySelectorAll(".dock-btn").forEach(b => b.classList.remove("active"));
+  const map = {
+    home: "dock-home",
+    dash: "dock-home",
+    meds: "dock-meds",
+    scan: "dock-scan",
+    reminders: "dock-reminders",
+    profile: "dock-profile"
+  };
+  const targetBtn = map[activeId];
+  if(targetBtn){
+    document.getElementById(targetBtn)?.classList.add("active");
+  }
+}
+
+function updateDockLabels(){
+  const isUr = lang === "ur";
+  const labels = {
+    home: isUr ? "ہوم" : "Home",
+    meds: isUr ? "دوائیں" : "Medicines",
+    scan: isUr ? "اسکین" : "Scan",
+    reminders: isUr ? "یاد دہانی" : "Reminders",
+    profile: isUr ? "پروفائل" : "Profile"
+  };
+  document.querySelectorAll("[data-dock]").forEach(el => {
+    const k = el.dataset.dock;
+    if(labels[k]) el.textContent = labels[k];
+  });
+}
+
+function updateSidebar(activeId){
+  const sidebar = document.getElementById("desktopSidebar");
+  if(!sidebar) return;
+  const cur = activeId || (document.querySelector(".screen.active")?.id || "home");
+
+  sidebar.querySelectorAll(".sb-item").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.sb === cur);
+  });
+
+  const S = {
+    en: {
+      scanBtn: "Scan Medicine",
+      menu: "MENU",
+      home: "Dashboard",
+      meds: "My Medicines",
+      reminders: "Reminders",
+      profile: "Profile",
+      settings: "Settings",
+      today: "Today",
+      taken: "doses taken",
+      allDone: "All done for today 🎉",
+      test: "Test Alarm"
+    },
+    ur: {
+      scanBtn: "دوا اسکین کریں",
+      menu: "مینو",
+      home: "ڈیش بورڈ",
+      meds: "میری دوائیں",
+      reminders: "یاد دہانیاں",
+      profile: "پروفائل",
+      settings: "ترتیبات",
+      today: "آج",
+      taken: "خوراکیں مکمل",
+      allDone: "آج کی تمام خوراکیں مکمل 🎉",
+      test: "الارم آزمائیں"
+    }
+  };
+  const s = S[lang] || S.en;
+
+  const lblScan = sidebar.querySelector("#sbScanTxt");
+  if(lblScan) lblScan.textContent = s.scanBtn;
+  const lblMenu = sidebar.querySelector("#sbMenuLabel");
+  if(lblMenu) lblMenu.textContent = s.menu;
+
+  const itemMap = { home: s.home, meds: s.meds, reminders: s.reminders, profile: s.profile, settings: s.settings };
+  Object.keys(itemMap).forEach(k => {
+    const el = sidebar.querySelector(`[data-sb-lbl="${k}"]`);
+    if(el) el.textContent = itemMap[k];
+  });
+
+  const now = nowHM();
+  const upCount = reminders.filter(r => r.on && medById(r.medId) && r.time >= now).length;
+  const badge = sidebar.querySelector("#sbRemBadge");
+  if(badge){
+    if(upCount > 0){
+      badge.textContent = upCount;
+      badge.style.display = "inline-flex";
+    } else {
+      badge.style.display = "none";
+    }
+  }
+
+  const today = todayStr();
+  const activeRem = reminders.filter(r => r.on && medById(r.medId)).sort((a,b)=>a.time.localeCompare(b.time));
+  const todayHist = history.filter(h => h.date === today);
+  const takenToday = todayHist.filter(h => h.status === "taken").length;
+  const total = Math.max(activeRem.length, todayHist.length);
+  const pct = total ? Math.round((takenToday / total) * 100) : 0;
+
+  const used = {};
+  const plan = activeRem.map(r => {
+    const name = medById(r.medId).brand || medById(r.medId).generic;
+    const h = todayHist.find((x,i) => x.med === name && !used[i] && (used[i]=true));
+    let st = h ? (h.status === "taken" ? "taken" : "missed") : (r.time > now ? "up" : "due");
+    return {r, name, st};
+  });
+  const nextR = plan.find(p => p.st === "up");
+
+  const sbTodayTitle = sidebar.querySelector("#sbTodayTitle");
+  if(sbTodayTitle) sbTodayTitle.textContent = s.today;
+  const sbTodayRatio = sidebar.querySelector("#sbTodayRatio");
+  if(sbTodayRatio) sbTodayRatio.textContent = `${takenToday} / ${total}`;
+  const sbProgressFill = sidebar.querySelector("#sbProgressFill");
+  if(sbProgressFill) sbProgressFill.style.width = pct + "%";
+  const sbNextText = sidebar.querySelector("#sbNextText");
+  if(sbNextText){
+    if(nextR){
+      sbNextText.textContent = `⏰ ${nextR.r.time} — ${nextR.name}`;
+    } else if(activeRem.length && takenToday >= total){
+      sbNextText.textContent = s.allDone;
+    } else {
+      sbNextText.textContent = `${takenToday} ${s.taken}`;
+    }
+  }
+}
+
+function updateTopClock(){
+  const now = new Date();
+  const timeEl = document.getElementById("tbTime");
+  const dateEl = document.getElementById("tbDate");
+  if(!timeEl || !dateEl) return;
+  timeEl.textContent = now.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+  dateEl.textContent = now.toLocaleDateString(lang==="ur" ? "ur-PK" : "en-US", {month:"short", day:"numeric"});
+}
+setInterval(updateTopClock, 30000);
+
+function updateTopBar(activeId){
+  const cur = activeId || (document.querySelector(".screen.active")?.id || "home");
+
+  // Highlight top bar icon for open screen
+  const tbBrand = document.getElementById("tb-brand");
+  const tbReminders = document.getElementById("tb-reminders");
+  const tbSettings = document.getElementById("tb-settings");
+  const tbProfile = document.getElementById("tb-profile");
+
+  if(tbBrand) tbBrand.classList.toggle("active", cur === "home");
+  if(tbReminders) tbReminders.classList.toggle("active", cur === "reminders");
+  if(tbSettings) tbSettings.classList.toggle("active", cur === "settings");
+  if(tbProfile) tbProfile.classList.toggle("active", cur === "profile");
+
+  // Subtitle
+  const sub = document.getElementById("tbSubtitle");
+  if(sub){
+    sub.textContent = lang === "ur" ? "آپ کا دوا معاون" : "Smart medicine assistant";
+  }
+
+  // Segmented language switch sliding pill
+  const seg = document.getElementById("tbLangSeg");
+  if(seg){
+    seg.classList.toggle("is-en", lang === "en");
+    seg.classList.toggle("is-ur", lang === "ur");
+  }
+
+  // Bell icon badge: upcoming reminders today
+  const badge = document.getElementById("tbRemBadge");
+  if(badge){
+    const now = nowHM();
+    const upCount = reminders.filter(r => r.on && medById(r.medId) && r.time >= now).length;
+    if(upCount > 0){
+      badge.textContent = upCount;
+      badge.style.display = "flex";
+    } else {
+      badge.style.display = "none";
+    }
+  }
+
+  // Avatar text initials
+  const av = document.getElementById("tbAvatarText");
+  if(av){
+    const pr = load("ml_profile", null);
+    if(pr && pr.name){
+      const inits = pr.name.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+      av.textContent = inits || "👤";
+    } else {
+      av.textContent = "👤";
+    }
+  }
+
+  updateTopClock();
+}
+
+/* Header Heartbeat (ECG) Animated Line */
+(function initHeaderEcg() {
+  function setupEcg() {
+    const topBar = document.getElementById("topBar");
+    if (!topBar) return;
+    const baseEl = document.getElementById("tbEcgBase");
+    const pulseEl = document.getElementById("tbEcgPulse");
+    if (!baseEl || !pulseEl) return;
+
+    let pulseAnim = null;
+
+    function buildPath() {
+      const rect = topBar.getBoundingClientRect();
+      const W = Math.max(rect.width || topBar.clientWidth || 300, 300);
+      const H = Math.max(rect.height || topBar.clientHeight || 48, 48);
+      const cy = H / 2;
+
+      const motifW = 180;
+      let pathStr = `M 0 ${cy.toFixed(1)}`;
+      let x = 0;
+
+      const pBump = (H * 0.12).toFixed(1);
+      const qDip = (H * 0.08).toFixed(1);
+      const rSpike = (H * 0.38).toFixed(1);
+      const sDip = (H * 0.35).toFixed(1);
+      const tBump = (H * 0.18).toFixed(1);
+
+      while (x < W + motifW) {
+        const p1 = (x + 60).toFixed(1);
+        const p2 = (x + 70).toFixed(1);
+        const p3 = (x + 80).toFixed(1);
+        const q1 = (x + 95).toFixed(1);
+        const q2 = (x + 102).toFixed(1);
+        const r1 = (x + 112).toFixed(1);
+        const s1 = (x + 122).toFixed(1);
+        const b1 = (x + 130).toFixed(1);
+        const t1 = (x + 145).toFixed(1);
+        const t2 = (x + 160).toFixed(1);
+        const t3 = (x + 175).toFixed(1);
+        const endX = (x + 180).toFixed(1);
+
+        pathStr += ` L ${p1} ${cy.toFixed(1)}`;
+        pathStr += ` Q ${p2} ${(cy - pBump).toFixed(1)} ${p3} ${cy.toFixed(1)}`;
+        pathStr += ` L ${q1} ${cy.toFixed(1)}`;
+        pathStr += ` L ${q2} ${(cy + parseFloat(qDip)).toFixed(1)}`;
+        pathStr += ` L ${r1} ${(cy - rSpike).toFixed(1)}`;
+        pathStr += ` L ${s1} ${(cy + parseFloat(sDip)).toFixed(1)}`;
+        pathStr += ` L ${b1} ${cy.toFixed(1)}`;
+        pathStr += ` L ${t1} ${cy.toFixed(1)}`;
+        pathStr += ` Q ${t2} ${(cy - tBump).toFixed(1)} ${t3} ${cy.toFixed(1)}`;
+        pathStr += ` L ${endX} ${cy.toFixed(1)}`;
+
+        x += motifW;
+      }
+
+      baseEl.setAttribute("d", pathStr);
+      pulseEl.setAttribute("d", pathStr);
+
+      if (pulseAnim) {
+        pulseAnim.cancel();
+        pulseAnim = null;
+      }
+
+      const isReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (isReduced) {
+        pulseEl.style.display = 'none';
+        return;
+      } else {
+        pulseEl.style.display = 'block';
+      }
+
+      const L = pulseEl.getTotalLength();
+      const seg = Math.min(260, W * 0.25);
+      pulseEl.style.strokeDasharray = seg + " " + L;
+
+      pulseAnim = pulseEl.animate(
+        [
+          { strokeDashoffset: seg },
+          { strokeDashoffset: -L }
+        ],
+        {
+          duration: (L + seg) / 250 * 1000,
+          iterations: Infinity,
+          easing: 'linear'
+        }
+      );
+    }
+
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(() => { buildPath(); });
+      ro.observe(topBar);
+    } else {
+      window.addEventListener('resize', buildPath, { passive: true });
+    }
+
+    if (window.matchMedia) {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      mq.addEventListener && mq.addEventListener('change', buildPath);
+    }
+
+    buildPath();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupEcg);
+  } else {
+    setupEcg();
+  }
+})();
+
+/* Adaptive Header Contrast Detection */
+(function initHeaderContrast() {
+  let rafPending = false;
+
+  function getPointLuminance(x, y) {
+    const clampX = Math.max(2, Math.min(window.innerWidth - 2, x));
+    const clampY = Math.max(2, Math.min(window.innerHeight - 2, y));
+
+    let stack = [];
+    try {
+      stack = document.elementsFromPoint(clampX, clampY) || [];
+    } catch(e) {
+      return 0.25;
+    }
+
+    for (let i = 0; i < stack.length; i++) {
+      const el = stack[i];
+      if (!el) continue;
+      // Ignore header, modals, medical background, sparkles, aurora, canvas
+      if (el.closest('#topBar') || el.closest('#medicalBg') || el.closest('#unlock') || el.closest('#login') || el.classList.contains('med-canvas')) {
+        continue;
+      }
+
+      let cur = el;
+      while (cur && cur !== document.body && cur !== document.documentElement) {
+        const style = window.getComputedStyle(cur);
+        const bg = style.backgroundColor;
+        if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+          const m = bg.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\)/);
+          if (m) {
+            const r = parseInt(m[1], 10);
+            const g = parseInt(m[2], 10);
+            const b = parseInt(m[3], 10);
+            const a = m[4] !== undefined ? parseFloat(m[4]) : 1;
+            if (a > 0.05) {
+              return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            }
+          }
+        }
+        cur = cur.parentElement;
+      }
+    }
+    return 0.25; // Default dark medical gradient background
+  }
+
+  function sectionIsLight(el) {
+    if (!el) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return false;
+
+    let lightCount = 0;
+    const sampleCount = 10;
+    for (let i = 0; i < sampleCount; i++) {
+      const px = r.left + (r.width * (0.1 + (i % 5) * 0.2));
+      const py = r.top + (r.height * (0.2 + Math.floor(i / 5) * 0.6));
+      const lum = getPointLuminance(px, py);
+      if (lum > 0.6) {
+        lightCount++;
+      }
+    }
+    return (lightCount / sampleCount) >= 0.4;
+  }
+
+  function checkContrast() {
+    rafPending = false;
+    const topBar = document.getElementById("topBar");
+    if (!topBar) return;
+
+    const brandEl = document.getElementById("tb-brand");
+    const clockEl = document.getElementById("tbClockChip");
+    const actionsEl = document.querySelector(".tb-actions");
+
+    const brandLight = sectionIsLight(brandEl);
+    const clockLight = sectionIsLight(clockEl);
+    const actionsLight = sectionIsLight(actionsEl);
+
+    if (brandEl) brandEl.classList.toggle("on-light", brandLight);
+    if (clockEl) clockEl.classList.toggle("on-light", clockLight);
+    if (actionsEl) actionsEl.classList.toggle("on-light", actionsLight);
+
+    const lightSections = (brandLight ? 1 : 0) + (clockLight ? 1 : 0) + (actionsLight ? 1 : 0);
+    const isTopBarLight = lightSections >= 2 || (lightSections === 1 && (!clockEl || window.getComputedStyle(clockEl).display === 'none'));
+    topBar.classList.toggle("on-light", isTopBarLight);
+  }
+
+  function requestCheck() {
+    if (!rafPending) {
+      rafPending = true;
+      requestAnimationFrame(checkContrast);
+    }
+  }
+
+  window.checkHeaderContrast = requestCheck;
+
+  window.addEventListener("scroll", requestCheck, { passive: true });
+  window.addEventListener("resize", requestCheck, { passive: true });
+  setInterval(checkContrast, 1500);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", requestCheck);
+  } else {
+    requestCheck();
+  }
+})();
+
+function setAppLang(targetLang){
+  if(lang === targetLang) return;
+  lang = targetLang;
+  store("ml_lang", lang);
+  applyLang();
+}
+
+function applyLang(){
+  document.body.classList.toggle("ur", lang==="ur");
+  document.documentElement.dir = lang==="ur" ? "rtl" : "ltr";
+  document.documentElement.lang = lang;
+  const lb = document.getElementById("langBtn");
+  if(lb) lb.textContent = lang==="ur" ? "English" : "اردو";
+  document.querySelectorAll("[data-t]").forEach(el => el.textContent = t(el.dataset.t));
+  const chipMap = {
+    en: { scan: "Scan", listen: "Listen", remind: "Remind", safe: "Stay safe" },
+    ur: { scan: "اسکین", listen: "سنیں", remind: "یاد دہانی", safe: "حفاظت" }
+  };
+  const cm = chipMap[lang] || chipMap.en;
+  document.querySelectorAll("[data-chip]").forEach(el => {
+    const k = el.dataset.chip;
+    if(cm[k]) el.textContent = cm[k];
+  });
+  updateDockLabels();
+  updateTopBar();
+  updateSidebar();
+  try{
+    if(window.MedReminders && window.MedReminders.setLanguage){
+      window.MedReminders.setLanguage(lang);
+    }
+  }catch(e){}
+  renderAll();
+  window.checkHeaderContrast && window.checkHeaderContrast();
+}
+function toggleLang(){ setAppLang(lang==="en" ? "ur" : "en"); }
+
+function show(id){
+  const target = (id === "dash") ? "home" : id;
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id===target));
+  if(target==="settings") fillSettings();
+  updateDock(target);
+  updateTopBar(target);
+  updateSidebar(target);
+  renderAll();
+  window.scrollTo(0,0);
+  window.checkHeaderContrast && window.checkHeaderContrast();
+}
+
+let audioCtx = null;
+window.unlockApp = function(){
+  try{
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    g.gain.value = 0.0001; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.05);
+  }catch(e){}
+  try{ speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); }catch(e){}
+  document.getElementById("unlock").style.display = "none";
+  if(!isLogged()){
+    lock();
+  } else {
+    document.getElementById("dock")?.classList.remove("hidden");
+    show("home");
+  }
+}
+function beep(){
+  if(!audioCtx) return;
+  try{
+    if(audioCtx.state==="suspended") audioCtx.resume();
+    [0, 0.35, 0.7].forEach(off => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "square"; o.frequency.value = 880;
+      g.gain.setValueAtTime(0.25, audioCtx.currentTime+off);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+off+0.25);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(audioCtx.currentTime+off); o.stop(audioCtx.currentTime+off+0.26);
+    });
+  }catch(e){}
+}
+
+let voices = [];
+function loadVoices(){ try{ voices = speechSynthesis.getVoices(); }catch(e){ voices=[]; } }
+try{ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }catch(e){}
+function findVoice(code){ return voices.find(v => v.lang && v.lang.toLowerCase().startsWith(code)); }
+function hasUrduVoice(){ return !!findVoice("ur"); }
+
+function speak(text, l){
+  return new Promise(res => {
+    try{
+      const u = new SpeechSynthesisUtterance(text);
+      const v = findVoice(l==="ur" ? "ur" : "en");
+      if(v) u.voice = v;
+      u.lang = l==="ur" ? "ur-PK" : "en-US";
+      u.rate = 0.85;
+      u.onend = res; u.onerror = res;
+      speechSynthesis.speak(u);
+    }catch(e){ res(); }
+  });
+}
+function playUrduRecording(){
+  return new Promise(res => {
+    const data = load("ml_urdu_audio", null);
+    if(!data) return res(false);
+    try{ const a = new Audio(data); a.onended = () => res(true); a.onerror = () => res(false); a.play().catch(()=>res(false)); }
+    catch(e){ res(false); }
+  });
+}
+async function speakSmart(enText, urText){
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if(lang==="ur"){
+    if(hasUrduVoice()) return speak(urText, "ur");
+    return speak(enText, "en");
+  }
+  return speak(enText, "en");
+}
+
+function fillSettings(){
+  document.getElementById("apiKey").value = settings.apiKey || "";
+  document.getElementById("model").value = settings.model || "gemini-flash-latest";
+  document.getElementById("defMorning").value = settings.times.morning;
+  document.getElementById("defAfternoon").value = settings.times.afternoon;
+  document.getElementById("defNight").value = settings.times.night;
+  document.getElementById("urduAudioStatus").textContent = load("ml_urdu_audio", null) ? "✓ Urdu recording saved" : "";
+}
+function saveSettings(){
+  settings.apiKey = document.getElementById("apiKey").value.trim();
+  settings.model = document.getElementById("model").value.trim() || "gemini-flash-latest";
+  settings.times = {
+    morning: document.getElementById("defMorning").value || "08:00",
+    afternoon: document.getElementById("defAfternoon").value || "14:00",
+    night: document.getElementById("defNight").value || "21:00"
+  };
+  store("ml_settings", settings);
+  alert(t("saved"));
+}
+function onUrduAudio(e){
+  const f = e.target.files[0]; if(!f) return;
+  if(f.size > 3*1024*1024){ alert("Please use a short recording (under 3 MB)."); return; }
+  const r = new FileReader();
+  r.onload = () => { store("ml_urdu_audio", r.result); fillSettings(); };
+  r.readAsDataURL(f);
+}
+
+function resizeImage(file){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 1600, s = Math.min(1, max/Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function onPhoto(e){
+  const file = e.target.files[0]; e.target.value = "";
+  if(!file) return;
+  const status = document.getElementById("scanStatus");
+  document.getElementById("results").innerHTML = "";
+  if(!settings.apiKey){ status.innerHTML = `<div class="banner orange">${esc(t("noKey"))}</div>`; return; }
+  const dataUrl = await resizeImage(file);
+  const prev = document.getElementById("photoPreview"); prev.src = dataUrl; prev.style.display = "block";
+  status.innerHTML = `<div class="spinner"></div><p style="text-align:center">${esc(t("reading"))}</p>`;
+  try{
+    const body = {
+      systemInstruction:{parts:[{text:SYSTEM_INSTRUCTION}]},
+      contents:[{role:"user", parts:[
+        {inlineData:{mimeType:"image/jpeg", data:dataUrl.split(",")[1]}},
+        {text:"Read the medicine information in this photo."}
+      ]}],
+      generationConfig:{responseMimeType:"application/json", responseSchema:SCHEMA, temperature:0}
+    };
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(settings.model)}:generateContent`, {
+      method:"POST", headers:{"Content-Type":"application/json", "x-goog-api-key":settings.apiKey}, body:JSON.stringify(body)
+    });
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.error?.message || ("HTTP "+r.status));
+    const text = j.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("") || "{}";
+    const data = JSON.parse(text);
+    lastScan = (data.medicines || []).map(m => ({
+      id:uid(), brand:m.brand_name||"", generic:(m.generic_name||"").toLowerCase(), strength:m.strength||"",
+      dose:m.dose||"", frequency:m.frequency||"", timing:Array.isArray(m.timing)?m.timing:[],
+      food:m.with_food||"unspecified", duration:m.duration||"", confidence:m.confidence||"low", unclear:m.unclear_parts||""
+    }));
+    status.innerHTML = "";
+    if(!lastScan.length){ status.innerHTML = `<div class="banner orange">${esc(t("none"))}</div>`; return; }
+    renderResults();
+  }catch(err){
+    console.error(err);
+    status.innerHTML = `<div class="banner orange">${esc(t("readFail"))}<br><span class="muted" style="font-size:14px">${esc(err.message)}</span></div>
+      <button class="small secondary" onclick="document.getElementById('photo').click()">${ICON.refresh} <span data-t="tryAgain"></span></button>`;
+  }
+}
+
+function foodText(f, l){ const L = T[l]; return f==="before"?L.beforeFood : f==="after"?L.afterFood : f==="with"?L.withFood : ""; }
+function timelineHTML(timing){
+  const slots = [["morning", ICON.sun], ["afternoon", ICON.sunCloud], ["night", ICON.moon]];
+  return `<div class="timeline">${slots.map(([k,ic]) =>
+    `<div class="slot ${timing.includes(k)?"on":""}"><span class="ico">${ic}</span>${esc(t(k))}</div>`).join("")}</div>`;
+}
+function medScript(m, l){
+  const name = m.brand || m.generic || "this medicine";
+  const times = m.timing.map(k => T[l][k]).join(l==="ur" ? "، " : ", ");
+  const food = foodText(m.food, l);
+  if(l==="ur"){
+    let s = `یہ دوا ${name} ہے۔`;
+    if(m.confidence!=="low" && m.dose) s += ` ${m.dose} لیں۔`;
+    if(times) s += ` ${times} کے وقت۔`;
+    if(food) s += ` ${food}۔`;
+    if(m.confidence==="low") s += " کچھ معلومات واضح نہیں ہیں، براہِ کرم فارماسسٹ سے تصدیق کریں۔";
+    return s;
+  }
+  let s = `This is ${name}.`;
+  if(m.confidence!=="low" && m.dose) s += ` Take ${m.dose}.`;
+  if(times) s += ` Take it in the ${times}.`;
+  if(food) s += ` Take it ${food}.`;
+  if(m.confidence==="low") s += " Some details are unclear. Please confirm with your pharmacist.";
+  return s;
+}
+
+function renderResults(){
+  const box = document.getElementById("results");
+  box.innerHTML = lastScan.map((m,i) => `
+    <div class="card">
+      <p class="medname">${ICON.pillTeal} ${esc(m.brand || m.generic || "?")}</p>
+
+      ${m.generic ? `<p class="muted">${esc(m.generic)}</p>` : ""}
+      ${m.confidence==="low" ? `<div class="banner orange">${esc(t("unclear"))}${m.unclear?`<br><span style="font-weight:400;font-size:16px">${esc(m.unclear)}</span>`:""}</div>` : ""}
+      <p><b>${esc(t("strength"))}:</b> ${esc(m.strength||"—")}<br>
+         <b>${esc(t("dose"))}:</b> ${m.confidence==="low" ? "—" : esc(m.dose||"—")}<br>
+         <b>${esc(t("howOften"))}:</b> ${esc(m.frequency||"—")} ${m.food!=="unspecified" ? "🍽️ "+esc(foodText(m.food, lang)) : ""}</p>
+      ${timelineHTML(m.timing)}
+      <button class="small secondary" style="width:100%; margin-bottom: 12px;" onclick="listenScan(${i})">${ICON.speaker} <span data-t="listen"></span></button>
+      <details><summary class="edit-btn">${ICON.pencil} <span data-t="edit"></span></summary>
+        <label>${esc(t("name"))}</label><input value="${esc(m.brand)}" onchange="lastScan[${i}].brand=this.value">
+        <label>${esc(t("generic"))}</label><input value="${esc(m.generic)}" onchange="lastScan[${i}].generic=this.value.toLowerCase()">
+        <label>${esc(t("strength"))}</label><input value="${esc(m.strength)}" onchange="lastScan[${i}].strength=this.value">
+        <label>${esc(t("dose"))}</label><input value="${esc(m.dose)}" onchange="lastScan[${i}].dose=this.value">
+        <label>${esc(t("notNow"))}</label>
+        <div class="row">${["morning","afternoon","night"].map(k=>`<label style="color:var(--ink)"><input type="checkbox" style="width:auto" ${m.timing.includes(k)?"checked":""} onchange="toggleTiming(${i},'${k}',this.checked)"> ${esc(t(k))}</label>`).join("")}</div>
+        <label><input type="checkbox" style="width:auto" onchange="lastScan[${i}].confidence=this.checked?'high':'low';renderResults()"> Confirmed by caregiver/pharmacist</label>
+      </details>
+    </div>`).join("") +
+    `<button class="big good" onclick="saveScan()">💾 ${esc(t("saveMed"))}</button>`;
+}
+function toggleTiming(i,k,on){ const tm = lastScan[i].timing; if(on && !tm.includes(k)) tm.push(k); if(!on) lastScan[i].timing = tm.filter(x=>x!==k); }
+function listenScan(i){ const m = lastScan[i]; speakSmart(medScript(m,"en"), medScript(m,"ur")); }
+
+function saveScan(){
+  lastScan.forEach(m => {
+    meds.push(m);
+    m.timing.forEach(k => reminders.push({id:uid(), medId:m.id, time:settings.times[k], slot:k, on:true, lastFired:""}));
+    try{
+      if(window.MedReminders && window.MedReminders.addMedicine){
+        window.MedReminders.addMedicine({ name: m.brand || m.generic, dose: m.dose, timing: m.timing });
+      }
+    }catch(e){}
+  });
+  store("ml_meds", meds); store("ml_reminders", reminders);
+  lastScan = [];
+  document.getElementById("results").innerHTML = `<div class="banner green">${esc(t("savedMsg"))}</div>`;
+  document.getElementById("photoPreview").style.display = "none";
+  try{ if("Notification" in window && Notification.permission==="default") Notification.requestPermission(); }catch(e){}
+  setTimeout(() => show("meds"), 1200);
+}
+
+function medById(id){ return meds.find(m => m.id===id); }
+function checkWarnings(){
+  const out = [];
+  const g = meds.map(m => ({m, g:(m.generic || m.brand || "").toLowerCase()}));
+  for(let i=0;i<g.length;i++) for(let j=i+1;j<g.length;j++){
+    const a=g[i], b=g[j];
+    INTERACTIONS.forEach(r => {
+      if((a.g.includes(r.a) && b.g.includes(r.b)) || (a.g.includes(r.b) && b.g.includes(r.a)))
+        out.push({cls:"red", text:`🚫 ${a.m.brand||a.g} + ${b.m.brand||b.g}: ${r[lang]}`});
+    });
+    if(a.m.generic && b.m.generic && a.m.generic===b.m.generic)
+      out.push({cls:"orange", text:`${t("dup")} ${a.m.brand||a.g}, ${b.m.brand||b.g}`});
+  }
+  return out;
+}
+window.medById = medById;
+window.checkWarnings = checkWarnings;
+function renderMeds(){
+  document.getElementById("warnings").innerHTML = checkWarnings().map(w => `<div class="banner ${w.cls}" style="font-size:22px">${esc(w.text)}</div>`).join("");
+  const headerIcons = {
+    morning: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#2a8a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px;margin-right:6px;display:inline-block"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>',
+    afternoon: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#2a8a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px;margin-right:6px;display:inline-block"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.9 7.8A6 6 0 0 0 9 4a6.07 6.07 0 0 0-5.8 4.2"/><path d="M3 15a5 5 0 0 0 5 5h9a4 4 0 0 0 1.8-7.6 6 6 0 0 0-8.8-5.4"/></svg>',
+    night: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#2a8a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px;margin-right:6px;display:inline-block"><path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9z"/></svg>'
+  };
+  document.getElementById("schedule").innerHTML = meds.length ? ["morning","afternoon","night"].map(k => {
+    const list = meds.filter(m => m.timing.includes(k));
+    if(!list.length) return "";
+    const ic = headerIcons[k];
+    return `<div class="card"><b style="font-size:24px">${ic} ${esc(t(k))}</b><br>${list.map(m=>`${ICON.pillTeal} ${esc(m.brand||m.generic)} — ${m.confidence==="low"?"—":esc(m.dose)}`).join("<br>")}</div>`;
+  }).join("") : `<p class="muted">${esc(t("noMeds"))}</p>`;
+  document.getElementById("medList").innerHTML = meds.map(m => `
+    <div class="card">
+      <p class="medname">${ICON.pillTeal} ${esc(m.brand||m.generic)}</p>
+      <p class="muted">${esc(m.generic)} ${esc(m.strength)}</p>
+      ${timelineHTML(m.timing)}
+      <div class="row" style="display:flex;gap:10px;margin-top:12px">
+        <button class="small secondary" style="flex:1" onclick="speakSmart(medScript(medById('${m.id}'),'en'), medScript(medById('${m.id}'),'ur'))">${ICON.speaker} <span data-t="listen"></span></button>
+        <button class="small danger" style="flex:1" onclick="deleteMed('${m.id}')">${ICON.trash} <span data-t="del"></span></button>
+      </div>
+    </div>`).join("");
+}
+function deleteMed(id){
+  meds = meds.filter(m => m.id!==id);
+  reminders = reminders.filter(r => r.medId!==id);
+  store("ml_meds", meds); store("ml_reminders", reminders); renderAll();
+}
+
+function renderReminders(){
+  const list = reminders.slice().sort((a,b)=>a.time.localeCompare(b.time));
+  document.getElementById("remList").innerHTML = list.length ? list.map(r => {
+    const m = medById(r.medId); if(!m) return "";
+    return `<div class="card">
+      <p class="medname">${ICON.pillTeal} ${esc(m.brand||m.generic)}</p>
+      <div class="row">
+        <input type="time" value="${r.time}" onchange="updateRem('${r.id}','time',this.value)">
+        <label style="color:var(--ink);flex:0 0 auto"><input type="checkbox" class="switch" ${r.on?"checked":""} onchange="updateRem('${r.id}','on',this.checked)"> <span data-t="on"></span></label>
+        <button class="small danger" style="flex:0 0 auto;width:44px;padding:0;justify-content:center" onclick="deleteRem('${r.id}')">${ICON.trash}</button>
+      </div>
+    </div>`;
+  }).join("") : `<p class="muted">${esc(t("noRem"))}</p>`;
+  const today = history.filter(h => h.date===todayStr());
+  document.getElementById("history").innerHTML = today.length ? today.map(h =>
+    `<div class="hist"><span>${esc(h.time)} — ${ICON.pillTeal} ${esc(h.med)}</span><b>${h.status==="taken"?esc(t("taken")):esc(t("missed"))}</b></div>`).join("")
+    : `<p class="muted">${esc(t("noHist"))}</p>`;
+}
+function updateRem(id, key, val){
+  const r = reminders.find(x=>x.id===id); if(!r) return;
+  r[key] = val; if(key==="time") r.lastFired = "";
+  store("ml_reminders", reminders); renderHomeNext();
+}
+function deleteRem(id){ reminders = reminders.filter(r=>r.id!==id); store("ml_reminders", reminders); renderAll(); }
+
+function renderHomeNext(){
+  const box = document.getElementById("nextReminder");
+  if(!box) return;
+  const now = nowHM();
+  const upcoming = reminders.filter(r => r.on && medById(r.medId)).sort((a,b)=>a.time.localeCompare(b.time));
+  const next = upcoming.find(r => r.time > now) || upcoming[0];
+  if(!next){ box.classList.add("hidden"); return; }
+  const m = medById(next.medId);
+  box.classList.remove("hidden");
+  box.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px;margin-right:4px;display:inline-block"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/></svg> <b>${esc(t("next"))}:</b> <span style="font-size:26px;font-weight:800">${esc(next.time)}</span> — ${ICON.pillWhite} ${esc(m.brand||m.generic)}`;
+}
+function renderAll(){ renderMeds(); renderReminders(); renderHomeNext(); if(lastScan.length) renderResults(); updateTopBar(); updateSidebar(); }
+
+function checkAlarms(){
+  const now = nowHM(), today = todayStr(), ts = Date.now();
+  reminders.forEach(r => {
+    if(r.on && r.time===now && r.lastFired!==today && medById(r.medId)){
+      r.lastFired = today; store("ml_reminders", reminders);
+      queueAlarm(r);
+    }
+  });
+  snoozes = snoozes.filter(s => {
+    if(s.at <= ts){ const r = reminders.find(x=>x.id===s.reminderId); if(r) queueAlarm(r); return false; }
+    return true;
+  });
+  renderHomeNext();
+}
+function queueAlarm(r){ alarmQueue.push(r); if(!activeAlarm) nextAlarm(); }
+
+function nextAlarm(){
+  const r = alarmQueue.shift(); if(!r) return;
+  const m = r.test ? r.med : medById(r.medId); if(!m) return nextAlarm();
+  activeAlarm = {reminder:r, med:m};
+  const name = m.brand || m.generic;
+  document.getElementById("alarmTitle").textContent = "⏰ " + t("timeTitle");
+  document.getElementById("alarmMed").innerHTML = `<b style="font-size:30px">${esc(name)}</b><br>${m.confidence==="low"?"":esc(m.dose)} ${m.food!=="unspecified"?"🍽️ "+esc(foodText(m.food, lang)):""}`;
+  document.getElementById("alarmText").textContent = T[lang].alarmVoice;
+  document.getElementById("alarm").classList.add("show");
+  try{ if("Notification" in window && Notification.permission==="granted") new Notification("💊 MedLens — " + t("timeTitle"), {body:name + (m.dose?" — "+m.dose:""), requireInteraction:true}); }catch(e){}
+  try{ navigator.vibrate && navigator.vibrate([400,200,400,200,400]); }catch(e){}
+  beep();
+  activeAlarm.beepTimer = setInterval(beep, 2500);
+  announce();
+  activeAlarm.voiceTimer = setInterval(announce, 60000);
+  activeAlarm.missTimer = setTimeout(() => endAlarm("missed"), 15*60000);
+}
+async function announce(){
+  if(!activeAlarm) return;
+  const m = activeAlarm.med, name = m.brand || m.generic;
+  clearInterval(activeAlarm.beepTimer);
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if(lang==="ur"){
+    let spoken = false;
+    if(hasUrduVoice()){ await speak(T.ur.alarmVoice + " " + name + "۔", "ur"); spoken = true; }
+    else { spoken = await playUrduRecording(); }
+    if(!spoken) await speak(T.en.alarmVoice + " " + name + ".", "en");
+  }else{
+    await speak(T.en.alarmVoice + " " + name + (m.dose && m.confidence!=="low" ? ". " + m.dose + "." : "."), "en");
+  }
+  if(activeAlarm){ clearInterval(activeAlarm.beepTimer); activeAlarm.beepTimer = setInterval(beep, 2500); }
+}
+function endAlarm(status){
+  if(!activeAlarm) return;
+  const {reminder, med} = activeAlarm;
+  clearInterval(activeAlarm.beepTimer); clearInterval(activeAlarm.voiceTimer); clearTimeout(activeAlarm.missTimer);
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if(status && !reminder.test){
+    history.push({date:todayStr(), time:nowHM(), med:med.brand||med.generic, status});
+    store("ml_history", history);
+  }
+  activeAlarm = null;
+  document.getElementById("alarm").classList.remove("show");
+  renderAll();
+  setTimeout(nextAlarm, 500);
+}
+function alarmTook(){ endAlarm("taken"); }
+function alarmSnooze(){
+  if(!activeAlarm) return;
+  const r = activeAlarm.reminder;
+  if(!r.test) snoozes.push({reminderId:r.id, at:Date.now() + 10*60000});
+  endAlarm(null);
+}
+function testAlarm(){
+  const m = meds[0] || {brand:t("testMed"), generic:"", dose:"1 tablet", food:"after", confidence:"high", timing:["morning"]};
+  queueAlarm({id:"test", test:true, med:m});
+}
+
+function initEcgPulse(){
+  const pulse = document.getElementById("ecgPulse");
+  if(!pulse) return;
+  try{
+    const totalLen = Math.round(pulse.getTotalLength() || 1600);
+    const pulseLen = Math.round(Math.min(180, totalLen * 0.12));
+    pulse.style.strokeDasharray = `${pulseLen} ${totalLen}`;
+
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(prefersReduced){
+      pulse.style.display = 'none';
+      return;
+    }
+
+    if(pulse.animate){
+      pulse.animate([
+        { strokeDashoffset: pulseLen },
+        { strokeDashoffset: -totalLen }
+      ], {
+        duration: 6000,
+        iterations: Infinity,
+        easing: 'linear'
+      });
+    }
+  }catch(e){
+    console.warn("ECG animation init", e);
+  }
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initEcgPulse);
+} else {
+  initEcgPulse();
+}
+window.addEventListener('resize', () => { setTimeout(initEcgPulse, 200); }, { passive: true });
+
+applyLang();
+setInterval(checkAlarms, 15000);
+checkAlarms();
+</script>
+
+<script>
+/* ================= FLOATING 3D MEDICINE OBJECTS CANVAS ================= */
+(function(){
+  const canvas = document.getElementById("medCanvas");
+  if(!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if(!ctx) return;
+
+  let width = 0, height = 0, dpr = 1;
+  let animId = null;
+  let isRunning = false;
+  let isVisible = true;
+  let prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Parallax tracking
+  let targetMouseX = 0, targetMouseY = 0;
+  let mouseX = 0, mouseY = 0;
+
+  window.addEventListener('mousemove', e => {
+    targetMouseX = (e.clientX / (window.innerWidth || 1)) - 0.5;
+    targetMouseY = (e.clientY / (window.innerHeight || 1)) - 0.5;
+  }, { passive: true });
+
+  // Capsule color presets (muted) + cream partner
+  const CAPSULE_COLORS = [
+    "#c4757c", // rose
+    "#5fa597", // teal
+    "#6f9fb2", // blue
+    "#c99a6b", // sand
+    "#8c8fc4"  // lavender
+  ];
+  const CREAM_COLOR = "#faf7f0";
+
+  // Total 18 objects: 50% capsules (9), 25% tablets (5), 25% crosses (4)
+  const objects = [];
+
+  function createObject(type, i, randomY = false){
+    const z = 0.35 + Math.random() * 0.65;
+    const x = Math.random() * (width || window.innerWidth || 800);
+    const y = randomY ? Math.random() * (height || window.innerHeight || 600) : ((height || window.innerHeight || 600) + 40 + Math.random() * 100);
+
+    return {
+      type,
+      x,
+      y,
+      z,
+      baseSpeed: 0.35 + Math.random() * 0.45,
+      swaySpeed: 0.0008 + Math.random() * 0.0012,
+      phase: Math.random() * Math.PI * 2,
+      
+      // 3D Rotations
+      rot: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.008,
+      pitch: Math.random() * Math.PI * 2,
+      pitchSpeed: 0.006 + Math.random() * 0.008,
+
+      // Specifics
+      color: type === 'capsule' ? CAPSULE_COLORS[i % CAPSULE_COLORS.length] : null,
+      scoreAngle: Math.random() * Math.PI,
+      tilt: 0.35 + Math.random() * 0.45
+    };
+  }
+
+  function initObjects(){
+    objects.length = 0;
+    // 9 capsules (50%)
+    for(let i = 0; i < 9; i++){
+      objects.push(createObject('capsule', i, true));
+    }
+    // 5 round tablets (25%)
+    for(let i = 0; i < 5; i++){
+      objects.push(createObject('tablet', i, true));
+    }
+    // 4 medical plus crosses (25%)
+    for(let i = 0; i < 4; i++){
+      objects.push(createObject('cross', i, true));
+    }
+  }
+
+  function resize(){
+    width = window.innerWidth;
+    height = window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    if(objects.length === 0){
+      initObjects();
+    }
+    if(prefersReduced){
+      renderFrame(0);
+    }
+  }
+
+  // Draw 3D Capsule
+  function drawCapsule(o, px, py){
+    const scale = (0.55 + o.z * 0.45);
+    const alpha = (0.22 + o.z * 0.48);
+    const L = 38 * scale;
+    const R = 11.5 * scale;
+    const pitchCos = Math.cos(o.pitch);
+    const Le = Math.max(3, L * Math.abs(pitchCos));
+
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(o.rot);
+    ctx.globalAlpha = alpha;
+
+    // Soft drop shadow
+    ctx.save();
+    ctx.translate(0, 16 * scale);
+    ctx.scale(1, 0.45);
+    ctx.beginPath();
+    ctx.arc(0, 0, Le * 0.55 + R, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(10, 20, 25, 0.20)";
+    ctx.fill();
+    ctx.restore();
+
+    // Two-color capsule: left cream, right color (or vice versa based on pitch)
+    const colLeft = pitchCos >= 0 ? CREAM_COLOR : o.color;
+    const colRight = pitchCos >= 0 ? o.color : CREAM_COLOR;
+
+    // Left half
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(-Le / 2, 0, R, Math.PI / 2, Math.PI * 1.5);
+    ctx.lineTo(0, -R);
+    ctx.lineTo(0, R);
+    ctx.closePath();
+    ctx.fillStyle = colLeft;
+    ctx.fill();
+
+    // Left half gradient shading across width
+    const shadeLeft = ctx.createLinearGradient(0, -R, 0, R);
+    shadeLeft.addColorStop(0, "rgba(0, 0, 0, 0.22)");
+    shadeLeft.addColorStop(0.28, "rgba(255, 255, 255, 0.35)");
+    shadeLeft.addColorStop(0.55, "rgba(255, 255, 255, 0.04)");
+    shadeLeft.addColorStop(1, "rgba(0, 0, 0, 0.28)");
+    ctx.fillStyle = shadeLeft;
+    ctx.fill();
+    ctx.restore();
+
+    // Right half
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(0, -R);
+    ctx.lineTo(Le / 2, -R);
+    ctx.arc(Le / 2, 0, R, -Math.PI / 2, Math.PI / 2);
+    ctx.lineTo(0, R);
+    ctx.closePath();
+    ctx.fillStyle = colRight;
+    ctx.fill();
+
+    // Right half gradient shading
+    const shadeRight = ctx.createLinearGradient(0, -R, 0, R);
+    shadeRight.addColorStop(0, "rgba(0, 0, 0, 0.22)");
+    shadeRight.addColorStop(0.28, "rgba(255, 255, 255, 0.35)");
+    shadeRight.addColorStop(0.55, "rgba(255, 255, 255, 0.04)");
+    shadeRight.addColorStop(1, "rgba(0, 0, 0, 0.28)");
+    ctx.fillStyle = shadeRight;
+    ctx.fill();
+    ctx.restore();
+
+    // Seam line
+    ctx.beginPath();
+    ctx.moveTo(0, -R);
+    ctx.lineTo(0, R);
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.16)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // White highlight streak
+    ctx.beginPath();
+    ctx.moveTo(-Le / 2 + R * 0.3, -R * 0.52);
+    ctx.lineTo(Le / 2 - R * 0.3, -R * 0.52);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.65)";
+    ctx.lineWidth = 1.6 * scale;
+    ctx.lineCap = "round";
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // Draw 3D Round White Tablet with score line
+  function drawTablet(o, px, py){
+    const scale = (0.55 + o.z * 0.45);
+    const alpha = (0.22 + o.z * 0.48);
+    const R = 17 * scale;
+    const H = 6.5 * scale;
+    const tilt = o.tilt;
+    const ry = Math.max(3, R * Math.cos(tilt));
+    const h = H * Math.sin(tilt);
+
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(o.rot * 0.3);
+    ctx.globalAlpha = alpha;
+
+    // Drop shadow
+    ctx.save();
+    ctx.translate(0, (h + 12) * scale);
+    ctx.scale(1, 0.4);
+    ctx.beginPath();
+    ctx.arc(0, 0, R * 1.05, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(10, 20, 25, 0.18)";
+    ctx.fill();
+    ctx.restore();
+
+    // Edge thickness
+    if(h > 0.5){
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(0, h, R, ry, 0, 0, Math.PI);
+      ctx.lineTo(-R, 0);
+      ctx.ellipse(0, 0, R, ry, 0, Math.PI, 0, true);
+      ctx.closePath();
+
+      const edgeGrad = ctx.createLinearGradient(-R, 0, R, 0);
+      edgeGrad.addColorStop(0, "#c9c6bc");
+      edgeGrad.addColorStop(0.4, "#f0ede4");
+      edgeGrad.addColorStop(0.7, "#dedad0");
+      edgeGrad.addColorStop(1, "#bebbb1");
+      ctx.fillStyle = edgeGrad;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Top face
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(0, 0, R, ry, 0, 0, Math.PI * 2);
+    const faceGrad = ctx.createRadialGradient(-R * 0.2, -ry * 0.3, 2, 0, 0, R);
+    faceGrad.addColorStop(0, "#ffffff");
+    faceGrad.addColorStop(0.65, "#f6f4ee");
+    faceGrad.addColorStop(1, "#e6e3da");
+    ctx.fillStyle = faceGrad;
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Score line across tablet face
+    const a = o.scoreAngle + o.rot;
+    const sx = Math.cos(a) * R * 0.78;
+    const sy = Math.sin(a) * ry * 0.78;
+
+    ctx.beginPath();
+    ctx.moveTo(-sx, -sy);
+    ctx.lineTo(sx, sy);
+    ctx.strokeStyle = "rgba(95, 90, 80, 0.32)";
+    ctx.lineWidth = 1.4 * scale;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-sx, -sy + 0.8);
+    ctx.lineTo(sx, sy + 0.8);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.75)";
+    ctx.lineWidth = 1.0 * scale;
+    ctx.stroke();
+
+    ctx.restore();
+    ctx.restore();
+  }
+
+  // Draw 3D Medical Cross (mostly upright, rose gradient)
+  function drawCross(o, px, py){
+    const scale = (0.55 + o.z * 0.45);
+    const alpha = (0.22 + o.z * 0.48);
+    const L = 27 * scale;
+    const W = 9.5 * scale;
+    const r = 2.5 * scale;
+
+    ctx.save();
+    ctx.translate(px, py);
+    const uprightRot = Math.sin(o.phase + o.rot * 0.2) * 0.14;
+    ctx.rotate(uprightRot);
+    ctx.globalAlpha = alpha;
+
+    // Drop shadow
+    ctx.save();
+    ctx.translate(0, 14 * scale);
+    ctx.scale(1, 0.45);
+    ctx.beginPath();
+    ctx.arc(0, 0, L * 0.55, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(10, 20, 25, 0.18)";
+    ctx.fill();
+    ctx.restore();
+
+    // Soft rose gradient #d99199 to #a65763
+    const crossGrad = ctx.createLinearGradient(-L / 2, -L / 2, L / 2, L / 2);
+    crossGrad.addColorStop(0, "#d99199");
+    crossGrad.addColorStop(1, "#a65763");
+
+    function drawRoundedArm(cx, cy, w, h, rad){
+      if(ctx.roundRect){
+        ctx.beginPath();
+        ctx.roundRect(cx - w/2, cy - h/2, w, h, rad);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.rect(cx - w/2, cy - h/2, w, h);
+        ctx.fill();
+      }
+    }
+
+    ctx.fillStyle = crossGrad;
+    drawRoundedArm(0, 0, W, L, r);
+    drawRoundedArm(0, 0, L, W, r);
+
+    // Bevel highlights
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
+    ctx.lineWidth = 1.2 * scale;
+    ctx.beginPath();
+    ctx.moveTo(-W/2, -L/2 + r);
+    ctx.lineTo(-W/2, -W/2);
+    ctx.lineTo(-L/2 + r, -W/2);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.22)";
+    ctx.lineWidth = 1.2 * scale;
+    ctx.beginPath();
+    ctx.moveTo(W/2, L/2 - r);
+    ctx.lineTo(W/2, W/2);
+    ctx.lineTo(L/2 - r, W/2);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  let lastTime = performance.now();
+
+  function renderFrame(now){
+    ctx.clearRect(0, 0, width, height);
+
+    // Mouse parallax interpolation
+    mouseX += (targetMouseX - mouseX) * 0.05;
+    mouseY += (targetMouseY - mouseY) * 0.05;
+
+    for(let i = 0; i < objects.length; i++){
+      const o = objects[i];
+      const px = o.x + mouseX * 32 * o.z;
+      const py = o.y + mouseY * 32 * o.z;
+
+      if(o.type === 'capsule'){
+        drawCapsule(o, px, py);
+      } else if(o.type === 'tablet'){
+        drawTablet(o, px, py);
+      } else if(o.type === 'cross'){
+        drawCross(o, px, py);
+      }
+    }
+  }
+
+  function loop(now){
+    if(!isRunning) return;
+    const dt = Math.min((now - lastTime) / 1000, 0.1);
+    lastTime = now;
+
+    for(let i = 0; i < objects.length; i++){
+      const o = objects[i];
+
+      o.y -= o.baseSpeed * (0.35 + o.z * 0.65);
+      o.phase += o.swaySpeed * 60 * dt;
+      o.x += Math.sin(o.phase) * (0.3 + o.z * 0.4);
+
+      o.rot += o.rotSpeed * 60 * dt;
+      o.pitch += o.pitchSpeed * 60 * dt;
+
+      if(o.y < -70){
+        o.y = height + 60 + Math.random() * 40;
+        o.x = Math.random() * width;
+        o.z = 0.35 + Math.random() * 0.65;
+        o.phase = Math.random() * Math.PI * 2;
+      }
+    }
+
+    renderFrame(now);
+    animId = requestAnimationFrame(loop);
+  }
+
+  function startAnimation(){
+    if(prefersReduced){
+      renderFrame(0);
+      return;
+    }
+    if(!isRunning && isVisible){
+      isRunning = true;
+      lastTime = performance.now();
+      animId = requestAnimationFrame(loop);
+    }
+  }
+
+  function stopAnimation(){
+    isRunning = false;
+    if(animId){
+      cancelAnimationFrame(animId);
+      animId = null;
+    }
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    isVisible = !document.hidden;
+    if(isVisible){
+      startAnimation();
+    } else {
+      stopAnimation();
+    }
+  });
+
+  if(window.matchMedia){
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    mq.addEventListener && mq.addEventListener('change', e => {
+      prefersReduced = e.matches;
+      if(prefersReduced){
+        stopAnimation();
+        renderFrame(0);
+      } else {
+        startAnimation();
+      }
+    });
+  }
+
+  window.addEventListener("resize", resize, { passive: true });
+  resize();
+  startAnimation();
+})();
+</script>
+
+<script>
+/* ================= DASHBOARD ================= */
+(function(){
+  const D = {
+    en:{dash:"Dashboard", hi:"Hello! 👋", meds:"Medicines", doses:"Doses today", taken:"Taken today", adh:"7-day adherence",
+        warn:"Safety alerts", progress:"Today's progress", of:"of", done:"doses done", week:"Last 7 days",
+        plan:"Today's plan", none:"No reminders yet. Scan a medicine to start.", next:"Next dose", in:"in",
+        sTaken:"✅ Taken", sMissed:"❌ Missed", sUp:"⏳ Upcoming", sDue:"🔔 Due now", allDone:"All done for today 🎉",
+        h:"h", m:"min", days:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+        medsSub:"in your list", dosesSub:"still upcoming", takenSub:"of today", safeSub:"All clear", warnSub:"Needs attention"},
+    ur:{dash:"ڈیش بورڈ", hi:"السلام علیکم! 👋", meds:"دوائیں", doses:"آج کی خوراکیں", taken:"آج لی گئیں", adh:"7 دن کی پابندی",
+        warn:"حفاظتی انتباہ", progress:"آج کی پیش رفت", of:"میں سے", done:"خوراکیں مکمل", week:"پچھلے 7 دن",
+        plan:"آج کا پلان", none:"ابھی کوئی یاد دہانی نہیں۔ دوا اسکین کریں۔", next:"اگلی خوراک", in:"باقی",
+        sTaken:"✅ لے لی", sMissed:"❌ رہ گئی", sUp:"⏳ آنے والی", sDue:"🔔 ابھی وقت ہے", allDone:"آج کی تمام خوراکیں مکمل 🎉",
+        h:"گھنٹے", m:"منٹ", days:["اتوار","پیر","منگل","بدھ","جمعرات","جمعہ","ہفتہ"],
+        medsSub:"آپ کی فہرست میں", dosesSub:"باقی ہیں", takenSub:"آج کا", safeSub:"سب ٹھیک ہے", warnSub:"توجہ درکار ہے"}
+  };
+  const d = k => D[lang][k];
+  const dstr = dt => dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+
+  function animateValue(id, start, end, duration) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      el.textContent = end;
+      return;
+    }
+    el.textContent = start;
+    let startTime = null;
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      el.textContent = Math.floor(progress * (end - start) + start);
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }
+
+  function renderDash(){
+    const dashBody = document.getElementById("dashBody");
+    if(!dashBody) return;
+    const today = todayStr(), now = nowHM();
+    const active = reminders.filter(r => r.on && medById(r.medId)).sort((a,b)=>a.time.localeCompare(b.time));
+    const todayHist = history.filter(h => h.date === today);
+    const takenToday = todayHist.filter(h => h.status === "taken").length;
+    const total = Math.max(active.length, todayHist.length);
+    const pct = total ? Math.round(takenToday / total * 100) : 0;
+    const upcomingCount = active.filter(r => r.time > now).length;
+
+    const days = [];
+    for(let i=6;i>=0;i--){
+      const dt = new Date(); dt.setDate(dt.getDate()-i);
+      const ds = dstr(dt), hs = history.filter(h => h.date === ds);
+      const tk = hs.filter(h => h.status === "taken").length;
+      days.push({label:d("days")[dt.getDay()], pct: hs.length ? Math.round(tk/hs.length*100) : 0, has: hs.length > 0});
+    }
+    const withData = days.filter(x => x.has);
+    const adh = withData.length ? Math.round(withData.reduce((s,x)=>s+x.pct,0)/withData.length) : 0;
+    const warnCount = checkWarnings().length;
+
+    const used = {};
+    const plan = active.map(r => {
+      const name = medById(r.medId).brand || medById(r.medId).generic;
+      const h = todayHist.find((x,i) => x.med === name && !used[i] && (used[i]=true));
+      let st = h ? (h.status === "taken" ? "taken" : "missed") : (r.time > now ? "up" : "due");
+      return {r, name, st};
+    });
+    const nextR = plan.find(p => p.st === "up");
+    let countdown = "";
+    if(nextR){
+      const [hh,mm] = nextR.r.time.split(":").map(Number), n = new Date();
+      const mins = hh*60+mm - (n.getHours()*60+n.getMinutes());
+      countdown = (mins >= 60 ? Math.floor(mins/60)+" "+d("h")+" " : "") + (mins%60)+" "+d("m");
+    }
+
+    const dateTxt = new Date().toLocaleDateString(lang==="ur" ? "ur-PK" : "en-GB", {weekday:"long", day:"numeric", month:"long"});
+    const chip = {taken:["c-taken","sTaken"], missed:["c-missed","sMissed"], up:["c-up","sUp"], due:["c-due","sDue"]};
+    const pn = window.getProfileName ? getProfileName() : "";
+    let hello = "";
+    if(lang === "ur"){
+      hello = pn ? `السلام علیکم، ${esc(pn)}!` : d("hi");
+    } else {
+      hello = pn ? `Hello, ${esc(pn)}!` : `Hello! 👋`;
+    }
+
+    document.getElementById("dashBody").innerHTML = `
+      <div class="d-top-row ${nextR || active.length ? 'has-side' : 'single'}">
+        <div class="d-hello"><h2>${hello}</h2><p>${ICON.calendarWhite} ${esc(dateTxt)}</p></div>
+
+        ${nextR ? `<div class="d-next"><div>${ICON.alarmClockWhite}</div>
+          <div><div style="opacity:.9;font-weight:700">${d("next")} · ${d("in")} ${esc(countdown)}</div>
+          <div class="big-t">${esc(nextR.r.time)} — ${esc(nextR.name)}</div></div></div>`
+          : (active.length ? `<div class="banner green d-next-fallback">${d("allDone")}</div>` : "")}
+      </div>
+
+      <div class="d-grid">
+        <div class="d-stat lively anim-up" style="animation-delay:0s">
+          <div class="ic-wrap">
+            <div class="ic-glow" style="background:#2a8a84"></div>
+            <div class="ic" style="background:linear-gradient(135deg,#2a8a84,#4fa383)">${ICON.pillWhite}</div>
+          </div>
+          <div class="num" id="stat-meds">${meds.length}</div>
+          <div class="lbl">${d("meds")}</div>
+          <div class="sub-lbl">${d("medsSub")}</div>
+        </div>
+        <div class="d-stat lively anim-up" style="animation-delay:0.08s">
+          <div class="ic-wrap">
+            <div class="ic-glow" style="background:#5c6bb5"></div>
+            <div class="ic" style="background:linear-gradient(135deg,#5c6bb5,#4fa383)">${ICON.clockWhite}</div>
+          </div>
+          <div class="num" id="stat-doses">${active.length}</div>
+          <div class="lbl">${d("doses")}</div>
+          <div class="sub-lbl">${upcomingCount} ${d("dosesSub")}</div>
+        </div>
+        <div class="d-stat lively anim-up" style="animation-delay:0.16s">
+          <div class="ic-wrap">
+            <div class="ic-glow" style="background:#2a8a84"></div>
+            <div class="ic" style="background:linear-gradient(135deg,#2a8a84,#3e9c7f)">${ICON.checkWhite}</div>
+          </div>
+          <div class="num" id="stat-taken">${takenToday}</div>
+          <div class="lbl">${d("taken")}</div>
+          <div class="sub-lbl">${lang==="ur"?d("takenSub")+" ":""}${pct}%${lang==="en"?" "+d("takenSub"):""}</div>
+          <div class="mini-progress"><div class="fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="d-stat lively anim-up" style="animation-delay:0.24s">
+          <div class="ic-wrap">
+            <div class="ic-glow" style="background:${warnCount?"#c4757c":"#64737b"}"></div>
+            <div class="ic" style="background:${warnCount?"#c4757c":"#64737b"}">${ICON.shieldWhite}</div>
+          </div>
+          <div class="num" id="stat-warn">${warnCount}</div>
+          <div class="lbl">${d("warn")}</div>
+          <div class="sub-lbl ${warnCount?'warn-text':'safe-text'}">${warnCount?d("warnSub"):d("safeSub")}</div>
+        </div>
+      </div>
+
+      <div class="d-mid-grid">
+        <div class="card"><h3 style="margin:0 0 12px">${d("progress")}</h3>
+          <div class="d-ringwrap"><div class="d-ring" style="--p:${pct}"><span>${pct}%</span></div>
+            <div><div style="font-size:30px;font-weight:800">${takenToday} ${d("of")} ${total}</div><div class="muted">${d("done")}</div>
+            <div class="muted" style="margin-top:8px">${d("adh")}: <b style="color:#2c6f69">${adh}%</b></div></div></div>
+        </div>
+
+        <div class="card"><h3 style="margin:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2a8a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;display:inline-block"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>${d("week")}</h3>
+          <div class="d-bars">${days.map(x=>`<div class="d-bar"><span style="margin-bottom:4px">${x.has?x.pct+"%":""}</span>
+            <i class="${x.has?"":"empty"}" style="height:${x.has?Math.max(x.pct,4):4}%"></i><span style="margin-top:6px">${esc(x.label.slice(0,3))}</span></div>`).join("")}</div>
+        </div>
+      </div>
+
+      <div class="card d-plan-card"><h3 style="margin:0 0 6px"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2a8a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;display:inline-block"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${d("plan")}</h3>
+        ${plan.length ? plan.map(p=>`<div class="d-item"><span class="d-time">${esc(p.r.time)}</span><span>${ICON.pillTeal} ${esc(p.name)}</span>
+          <span class="d-chip ${chip[p.st][0]}">${d(chip[p.st][1])}</span></div>`).join("") : `<p class="muted">${d("none")}</p>`}
+      </div>`;
+  }
+
+  const origRender = window.renderAll || function(){};
+  window.renderAll = function(){ origRender(); renderDash(); };
+  setInterval(() => { if(document.getElementById("home")?.classList.contains("active")) renderDash(); }, 30000);
+  
+  function triggerDashAnims(m, a, t, w){
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(prefersReduced) return;
+    animateValue("stat-meds", 0, m, 800);
+    animateValue("stat-doses", 0, a, 800);
+    animateValue("stat-taken", 0, t, 800);
+    animateValue("stat-warn", 0, w, 800);
+  }
+
+  let observer = null;
+  function initObserver() {
+    const home = document.getElementById("home");
+    if (!home) return;
+    observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          if (home.classList.contains('active')) {
+            renderDash();
+            const today = todayStr();
+            const active = reminders.filter(r => r.on && medById(r.medId));
+            const todayHist = history.filter(h => h.date === today);
+            const takenToday = todayHist.filter(h => h.status === "taken").length;
+            const warnCount = checkWarnings().length;
+            triggerDashAnims(meds.length, active.length, takenToday, warnCount);
+          }
+        }
+      });
+    });
+    observer.observe(home, { attributes: true });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initObserver);
+  } else {
+    initObserver();
+  }
+
+  renderDash();
+  // If already active on load, trigger anims
+  setTimeout(() => {
+    const home = document.getElementById("home");
+    if(home && home.classList.contains('active')) {
+      const today = todayStr();
+      const active = reminders.filter(r => r.on && medById(r.medId));
+      const todayHist = history.filter(h => h.date === today);
+      const takenToday = todayHist.filter(h => h.status === "taken").length;
+      const warnCount = checkWarnings().length;
+      triggerDashAnims(meds.length, active.length, takenToday, warnCount);
+    }
+  }, 100);
+})();
+</script>
+
+<script>
+/* ================= PROFILE + LOGIN ================= */
+(function(){
+  const P = {
+    en:{profile:"My Profile", create:"Create your profile", createSub:"Set up MedLens for yourself or a loved one.",
+        name:"Full name", start:"Create & Continue", welcome:"Welcome back",
+        enterPin:"Enter your PIN", login:"Login", forgot:"Forgot PIN? Reset profile", wrong:"Wrong PIN. Try again.",
+        needName:"Please enter your name.", pinRule:"PIN must be 4 digits.", pinMatch:"PINs do not match.",
+        resetQ:"Reset the profile on this device? Medicines and reminders will stay.",
+        age:"Age", gender:"Gender", blood:"Blood group", allergies:"Allergies (comma separated)", conditions:"Health conditions",
+        ec:"Emergency contact", ecName:"Contact name", ecPhone:"Contact phone", save:"Save Profile", saved:"Profile saved ✓",
+        logout:"Logout", call:"Call", medical:"Medical info", male:"Male", female:"Female", other:"Other", yrs:"yrs",
+        allergyWarn:"⚠️ Allergy alert: you noted an allergy to", changePin:"New PIN (optional)"},
+    ur:{profile:"میری پروفائل", create:"اپنی پروفائل بنائیں", createSub:"اپنے یا اپنے کسی پیارے کے لیے میڈلینز سیٹ کریں۔",
+        name:"پورا نام", start:"بنائیں اور آگے بڑھیں", welcome:"خوش آمدید",
+        enterPin:"اپنا پن لکھیں", login:"لاگ اِن", forgot:"پن بھول گئے؟ پروفائل ری سیٹ کریں", wrong:"غلط پن۔ دوبارہ کوشش کریں۔",
+        needName:"براہِ کرم اپنا نام لکھیں۔", pinRule:"پن 4 ہندسوں کا ہونا چاہیے۔", pinMatch:"دونوں پن ایک جیسے نہیں۔",
+        resetQ:"اس ڈیوائس پر پروفائل ری سیٹ کریں؟ دوائیں اور یاد دہانیاں محفوظ رہیں گی۔",
+        age:"عمر", gender:"جنس", blood:"بلڈ گروپ", allergies:"الرجی (کاما سے الگ کریں)", conditions:"بیماریاں",
+        ec:"ہنگامی رابطہ", ecName:"رابطے کا نام", ecPhone:"رابطے کا فون", save:"پروفائل محفوظ کریں", saved:"پروفائل محفوظ ہو گئی ✓",
+        logout:"لاگ آؤٹ", call:"کال کریں", medical:"طبی معلومات", male:"مرد", female:"عورت", other:"دیگر", yrs:"سال",
+        allergyWarn:"⚠️ الرجی کا انتباہ: آپ کو اس سے الرجی ہے", changePin:"نیا پن (اختیاری)"}
+  };
+  const p = k => P[lang][k];
+  const getProfile = () => load("ml_profile", null);
+  const isLogged = () => { try{ return sessionStorage.getItem("ml_logged")==="1"; }catch(e){ return false; } };
+  const setLogged = v => { try{ v ? sessionStorage.setItem("ml_logged","1") : sessionStorage.removeItem("ml_logged"); }catch(e){} };
+  const initials = n => (n||"?").trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+  async function hash(s){
+    try{ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("medlens:"+s));
+      return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+    catch(e){ return "plain:"+s; }
+  }
+  window.getProfileName = () => (getProfile()||{}).name || "";
+
+
+  const sec = document.createElement("section");
+  sec.id = "profile"; sec.className = "screen";
+  sec.innerHTML = `<button class="small secondary" onclick="show('home')">${ICON.back} <span data-t="back"></span></button><div id="profileBody"></div>`;
+  document.querySelector("main").appendChild(sec);
+
+  function renderAuth(err){
+    const pr = getProfile(), card = document.getElementById("authCard");
+    if(!pr){
+      card.innerHTML = `<div class="avatar">💊</div><h2>${p("create")}</h2><p class="muted">${p("createSub")}</p>
+        <input id="aName" placeholder="${p("name")}">
+        <input id="aPin" class="pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" style="margin-top:10px">
+        <input id="aPin2" class="pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" style="margin-top:10px">
+        <div class="auth-err">${err||""}</div>
+        <button class="big primary" onclick="MLAuth.create()">✨ ${p("start")}</button>
+        <button class="link-btn" onclick="toggleLang();MLAuth.render()">${lang==="ur"?"English":"اردو"}</button>`;
+    }else{
+      card.innerHTML = `<div class="avatar">${esc(initials(pr.name))}</div><h2>${p("welcome")}, ${esc(pr.name)}!</h2>
+        <p class="muted">${p("enterPin")}</p>
+        <input id="aPin" class="pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••"
+          onkeydown="if(event.key==='Enter')MLAuth.login()">
+        <div class="auth-err">${err||""}</div>
+        <button class="big primary" onclick="MLAuth.login()">🔓 ${p("login")}</button>
+        <button class="link-btn" onclick="MLAuth.reset()">${p("forgot")}</button><br>
+        <button class="link-btn" onclick="toggleLang();MLAuth.render()">${lang==="ur"?"English":"اردو"}</button>`;
+    }
+  }
+  function lock(){ 
+    setLogged(false); 
+    renderAuth(); 
+    document.getElementById("login").classList.add("show"); 
+    document.getElementById("dock")?.classList.add("hidden");
+  }
+  window.lock = lock;
+  window.isLogged = isLogged;
+  function unlockScreen(){ 
+    document.getElementById("login").classList.remove("show"); 
+    document.getElementById("dock")?.classList.remove("hidden");
+    show("home"); 
+  }
+
+  window.MLAuth = {
+    render: () => renderAuth(),
+    async create(){
+      const name = document.getElementById("aName").value.trim();
+      const a = document.getElementById("aPin").value, b = document.getElementById("aPin2").value;
+      if(!name) return renderAuth(p("needName"));
+      if(!/^\d{4}$/.test(a)) return renderAuth(p("pinRule"));
+      if(a!==b) return renderAuth(p("pinMatch"));
+      store("ml_profile", {name, pinHash: await hash(a), age:"", gender:"", blood:"", allergies:"", conditions:"", ecName:"", ecPhone:""});
+      setLogged(true); 
+      unlockScreen();
+    },
+    async login(){
+      const pin = document.getElementById("aPin").value;
+      if(await hash(pin) === getProfile().pinHash){ setLogged(true); unlockScreen(); }
+      else renderAuth(p("wrong"));
+    },
+    reset(){ if(confirm(p("resetQ"))){ try{ localStorage.removeItem("ml_profile"); }catch(e){} renderAuth(); } },
+    async save(){
+      const pr = getProfile() || {};
+      ["name","age","gender","blood","allergies","conditions","ecName","ecPhone"].forEach(k => {
+        const el = document.getElementById("pf_"+k); if(el) pr[k] = el.value.trim();
+      });
+      const np = document.getElementById("pf_pin").value;
+      if(np){ if(!/^\d{4}$/.test(np)) return alert(p("pinRule")); pr.pinHash = await hash(np); }
+      store("ml_profile", pr); alert(p("saved")); renderAll();
+    },
+    logout: lock
+  };
+
+  function renderProfile(){
+    const pr = getProfile();
+    const av = document.getElementById("tbAvatarText");
+    if(av) av.textContent = pr && pr.name ? initials(pr.name) : "👤";
+    sec.querySelector("[data-t=back]").textContent = t("back");
+    if(!pr){ document.getElementById("profileBody").innerHTML = ""; return; }
+    const tags = [pr.age && pr.age+" "+p("yrs"), pr.gender && p(pr.gender), pr.blood && "🩸 "+pr.blood].filter(Boolean);
+    const opt = (v,l) => `<option value="${v}" ${pr.gender===v?"selected":""}>${l}</option>`;
+    const bopt = ["","A+","A-","B+","B-","AB+","AB-","O+","O-"].map(b=>`<option ${pr.blood===b?"selected":""}>${b}</option>`).join("");
+    document.getElementById("profileBody").innerHTML = `
+      <div class="p-head"><div class="avatar">${esc(initials(pr.name))}</div>
+        <div><h2>${esc(pr.name)}</h2><div class="p-tags">${tags.map(x=>`<span class="p-tag">${esc(x)}</span>`).join("")}</div></div></div>
+
+      ${pr.ecPhone ? `<a class="big warn" style="text-decoration:none" href="tel:${esc(pr.ecPhone)}">📞 ${p("call")} ${esc(pr.ecName||pr.ecPhone)}</a>` : ""}
+
+      <div class="card"><h3 style="margin:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2a8a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;display:inline-block"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${p("profile")}</h3>
+        <label>${p("name")}</label><input id="pf_name" value="${esc(pr.name)}">
+        <div class="p-grid">
+          <div><label>${p("age")}</label><input id="pf_age" type="number" min="0" max="120" value="${esc(pr.age)}"></div>
+          <div><label>${p("gender")}</label><select id="pf_gender">${opt("","—")}${opt("male",p("male"))}${opt("female",p("female"))}${opt("other",p("other"))}</select></div>
+        </div>
+        <label>${p("blood")}</label><select id="pf_blood">${bopt}</select>
+      </div>
+
+      <div class="card"><h3 style="margin:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2a8a84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;display:inline-block"><path d="M4.8 2.3A.3.3 0 0 0 4.5 2.6V7a5 5 0 0 0 10 0V2.6a.3.3 0 0 0-.3-.3h-1.4a.3.3 0 0 0-.3.3V7a3 3 0 0 1-6 0V2.6a.3.3 0 0 0-.3-.3z"/><path d="M9.5 12v3a4 4 0 0 0 4 4h1a4 4 0 0 0 4-4v-1.5"/><circle cx="18.5" cy="12.5" r="1.5"/></svg>${p("medical")}</h3>
+        <label>${p("allergies")}</label><input id="pf_allergies" value="${esc(pr.allergies)}" placeholder="penicillin, aspirin">
+        <label>${p("conditions")}</label><input id="pf_conditions" value="${esc(pr.conditions)}" placeholder="diabetes, blood pressure">
+      </div>
+
+      <div class="card"><h3 style="margin:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#c4757c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;display:inline-block"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${p("ec")}</h3>
+        <label>${p("ecName")}</label><input id="pf_ecName" value="${esc(pr.ecName)}">
+        <label>${p("ecPhone")}</label><input id="pf_ecPhone" type="tel" value="${esc(pr.ecPhone)}" placeholder="03xx xxxxxxx">
+        <label>${p("changePin")}</label><input id="pf_pin" class="pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+      </div>
+
+      <button class="big primary" onclick="MLAuth.save()">💾 ${p("save")}</button>
+      <button class="big secondary" onclick="MLAuth.logout()">🚪 ${p("logout")}</button>`;
+  }
+
+  const origWarn = window.checkWarnings || function(){return [];};
+  window.checkWarnings = function(){
+    const out = origWarn();
+    const al = ((getProfile()||{}).allergies||"").toLowerCase().split(",").map(s=>s.trim()).filter(s=>s.length>2);
+    meds.forEach(m => {
+      const g = ((m.generic||"")+" "+(m.brand||"")).toLowerCase();
+      al.forEach(a => { if(g.includes(a)) out.unshift({cls:"red", text:`${p("allergyWarn")} "${a}": ${m.brand||m.generic}`}); });
+    });
+    return out;
+  };
+
+  const origRender = window.renderAll || function(){};
+  window.renderAll = function(){ origRender(); renderProfile(); };
+  renderProfile();
+  if(!isLogged()){
+    lock();
+  } else {
+    document.getElementById("dock")?.classList.remove("hidden");
+    show("home");
+  }
+})();
+</script>
+
+<nav id="dock" class="hidden" aria-label="Main Navigation">
+  <button class="dock-btn active" onclick="show('home')" id="dock-home">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    <span class="dock-lbl" data-dock="home">Home</span>
+    <span class="dock-line"></span>
+  </button>
+
+  <button class="dock-btn" onclick="show('meds')" id="dock-meds">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="18" height="10" x="3" y="7" rx="5" transform="rotate(-45 12 12)"/>
+      <path d="m8.5 8.5 7 7"/>
+    </svg>
+    <span class="dock-lbl" data-dock="meds">Medicines</span>
+    <span class="dock-line"></span>
+  </button>
+
+  <div class="dock-scan-wrap">
+    <button class="dock-scan-btn" onclick="show('scan')" id="dock-scan" aria-label="Scan Medicine">
+      <div class="dock-scan-pulse"></div>
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+        <circle cx="12" cy="13" r="3.5"/>
+      </svg>
+    </button>
+    <span class="dock-scan-lbl" data-dock="scan">Scan</span>
+  </div>
+
+  <button class="dock-btn" onclick="show('reminders')" id="dock-reminders">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+    </svg>
+    <span class="dock-lbl" data-dock="reminders">Reminders</span>
+    <span class="dock-line"></span>
+  </button>
+
+  <button class="dock-btn" onclick="show('profile')" id="dock-profile">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    <span class="dock-lbl" data-dock="profile">Profile</span>
+    <span class="dock-line"></span>
+  </button>
+</nav>
+</body>
+</html>
